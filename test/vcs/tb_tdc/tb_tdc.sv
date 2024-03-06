@@ -7,19 +7,52 @@ Description: Simple tdc presynthesis test
 */
 
 module tb_tdc();
-  
+
     localparam N = 64;
+    localparam F_CLK = 66000000;
+    localparam T_CLK_PS = (1/F_CLK)*10**12
+    localparam T_CLK_PS_DIV2 = T_CLK_PS/2;
+
     bit 
-        clk, rst, en;
+        clk, rst_n, ena;
     logic [N-1:0]
-        x;
+        ;
     logic [$clog2(N):0]
         y, y_simple_sv, y_simple_loop;
+    
+    int bump_delay_delay_ps;
 
-    always #10 clk = ~clk;
+    // Setting bump will phase shift
+    initial begin
+	capture_clk = 1'b0;
+	#(T_CLK_PS_DIV2);
+	capture_clk = 1'b1;
+	#(T_CLK_PS_DIV2); 
+    end
+
+    initial begin
+	forever begin
+		fork 
+		// Await bump signal - processed synchronously w.r.t capture clk
+		begin
+			while(1) begin
+				@(posedge capture_clk)
+					if(bump)
+						break;
+		end
+		begin
+			
+		end
+		join_any
+		
+	end
+	#10000 clk = 0;
+	#10000 clk = 1;
+    end
+	
   
     initial begin
-        $dumpfile("tb_pop_count.vcd");
+        $dumpfile("tb_tdc.vcd");
         $dumpvars;
         @(posedge clk)
         rst <= 1'b1;

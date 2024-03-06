@@ -23,7 +23,8 @@ set ::env(CLOCK_PERIOD) "14"
 # set ::env(CLOCK_NET) "ui_in[0] ui_in[1]"
 
 # Custom SDC file for STA - includes the clock port below
-set ::env(BASE_SDC_FILE) $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc
+set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc]
+
 
 # Hold slack margin - Increase them in case you are getting hold violations.
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.1
@@ -33,8 +34,7 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Set manual macro placement for delay line
-set ::env(MACRO_PLACEMENT_CFG) $::env(DESIGN_DIR)/macro_placement.cfg
+set ::env(PL_MAX_DISPLACEMENT_X) 1
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
@@ -86,3 +86,6 @@ set ::env(CLOCK_PORT) {clk}
 # Don't use power rings or met5 layer
 set ::env(DESIGN_IS_CORE) 0
 set ::env(RT_MAX_LAYER) {met4}
+
+# Manually place certain macros
+set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/macro_placement.cfg]

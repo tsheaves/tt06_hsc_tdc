@@ -26,10 +26,15 @@ VCS_TOP       = tb_pop_count
 .PHONY: simv
 .PHONY: clean
 
-sim: clean simv compile
+sim_func: clean simv compile
 	./simv -assert report+quiet+success
 
-compile: clean
+sim_phy: clean simv compile_phy
+	./simv -assert report+quiet+success
+
+compile_phy:
+
+compile:
 	vcs +define+ASSERT_ON -top $(VCS_TOP) $(VCS_VSOURCES) $(VCS_FLAGS)
 
 clean:
