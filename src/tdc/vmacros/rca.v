@@ -21,8 +21,9 @@ module rca #(parameter n=32) (
 	
 	generate 
 		genvar i;
-		for(i=0; i<n; i=i+1) 
+		for(i=0; i<n; i=i+1) begin : rca_genblk
 			`FA_CELL FA ( .COUT(c[i+1]), .CIN(c[i]), .A(a[i]), .B(b[i]), .SUM(s[i]) );
+        end
    	endgenerate
 
 endmodule

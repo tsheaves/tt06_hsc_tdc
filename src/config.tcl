@@ -16,15 +16,14 @@ set script_dir [file dirname [file normalize [info script]]]
 set ::env(PL_TARGET_DENSITY) 0.6
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
-# The value is in nanoseconds, so 20ns == 50MHz.
-set ::env(CLOCK_PERIOD) "14"
+# The value is in nanoseconds, so 15.1515ns ~= 66MHz.
+set ::env(CLOCK_PERIOD) "15.1515151515"
 
 # Define clock nets for CTS
 # set ::env(CLOCK_NET) "ui_in[0] ui_in[1]"
 
 # Custom SDC file for STA - includes the clock port below
 set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc]
-
 
 # Hold slack margin - Increase them in case you are getting hold violations.
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.1
@@ -34,7 +33,12 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-set ::env(PL_MAX_DISPLACEMENT_X) 1
+
+
+# Manually place certain macros
+set ::env(EXTRA_LEFS) "/opt/tt/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef"
+set ::env(EXTRA_GDS_FILES) "/opt/tt/pdk/sky130A/libs.ref/sky130_fd_sc_hd/gds/sky130_fd_sc_hd.gds"
+set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/macro_placement.cfg]
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
@@ -86,6 +90,3 @@ set ::env(CLOCK_PORT) {clk}
 # Don't use power rings or met5 layer
 set ::env(DESIGN_IS_CORE) 0
 set ::env(RT_MAX_LAYER) {met4}
-
-# Manually place certain macros
-set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/macro_placement.cfg]
