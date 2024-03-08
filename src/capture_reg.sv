@@ -11,7 +11,7 @@ Description: Gauranteed to be an n-bit DFFE register independent of inputs
 module capture_reg (Q, D, CLK, EN);
 	parameter WIDTH = 1;
 	parameter CLK_POLARITY = 1;
-
+    (* clkbuf_sink *)
 	input CLK;
     input EN;
 	(* force_downto *)

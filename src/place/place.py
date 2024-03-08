@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # Geometry specs    
     grid_space_x = 0.460
-    std_cell_height = 2.720
+    std_cell_height = 2*2.720
 
     # TT single tile
     max_x=153.64
@@ -37,18 +37,14 @@ if __name__ == '__main__':
     # Create StdCell instances w/ placement attributes
     dl_loc = dl_loc_init
     insts=[]
-    up = 1
-    cell_orient = "S"
+    up = True
+    cell_orient = "N"
     # DL zig-zags vertically
     for i in range(tdc_len):
-        if(cell_orient == "S"):
-            cell_orient = "N"
-        else:
-            cell_orient = "S"
         # Delay line element  
         insts.append(StdCellInstance(f"tdc_inst.dl_inst.dl_genblk.dl.rca_genblk\\[{i}\\].FA", (dl_loc[0], dl_loc[1]), cell_orient))
         # Register
-        insts.append(StdCellInstance(f"tdc_inst.dl_capt.capt_genblk\\[{i}\\].DFE", (round(dl_loc[0]+cell_width_um_dle+grid_space_x*10, 5), dl_loc[1]), cell_orient))
+        insts.append(StdCellInstance(f"tdc_inst.dl_capt.capt_genblk\\[{i}\\].DFE", (round(dl_loc[0]+cell_width_um_dle+2*grid_space_x, 5), dl_loc[1]), cell_orient))
         # Calculate next macro Y location
         if(up):
             dl_loc_y=dl_loc[1]+std_cell_height
@@ -57,9 +53,9 @@ if __name__ == '__main__':
         dl_loc_x = dl_loc[0]
         # Check boundary
         if(dl_loc_y > max_y or dl_loc_y < dl_loc_init[1]):
-            dl_loc_x=dl_loc[0]+cell_width_um_dle+cell_width_um_capt_reg+grid_space_x*20
+            dl_loc_x=dl_loc[0]+cell_width_um_dle+cell_width_um_capt_reg+4*grid_space_x
             dl_loc_y=dl_loc[1]           
-            up = 0
+            up = not up
         dl_loc = (round(dl_loc_x, 5), round(dl_loc_y,5))
 
     # Create macro placement config file
