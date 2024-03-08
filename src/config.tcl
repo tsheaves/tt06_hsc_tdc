@@ -17,7 +17,7 @@ set ::env(PL_TARGET_DENSITY) 0.6
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
-set ::env(CLOCK_PERIOD) "15.1515151515"
+set ::env(CLOCK_PERIOD) "15"
 
 # Define clock nets for CTS
 # set ::env(CLOCK_NET) "ui_in[0] ui_in[1]"
@@ -32,8 +32,6 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 # RUN_LINTER, LINTER_INCLUDE_PDK_MODELS - Disabling the linter is not recommended!
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
-
-
 
 # Manually place certain macros
 set ::env(EXTRA_LEFS) "/opt/tt/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef"

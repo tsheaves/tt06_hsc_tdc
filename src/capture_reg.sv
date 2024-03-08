@@ -8,8 +8,8 @@ Description: Gauranteed to be an n-bit DFFE register independent of inputs
 `define REG_CELL sky130_fd_sc_hd__edfxtp_1  
 
 (* techmap_celltype = "$dffe" *)
-module dff_reg (Q, D, CLK, EN);
-	parameter WIDTH = N;
+module capture_reg (Q, D, CLK, EN);
+	parameter WIDTH = 1;
 	parameter CLK_POLARITY = 1;
 
 	input CLK;
@@ -21,8 +21,8 @@ module dff_reg (Q, D, CLK, EN);
     
 	generate 
 		genvar i;
-		for(i=0; i<n; i=i+1) begin : rca_genblk
-			`REG_CELL DFF(.Q(Q[i]), .CLK(clk), .D(D[i]), .DE(EN));
+		for(i=0; i<WIDTH; i=i+1) begin : capt_genblk
+			`REG_CELL DFE(.Q(Q[i]), .CLK(CLK), .D(D[i]), .DE(EN));
         end
    	endgenerate    
 

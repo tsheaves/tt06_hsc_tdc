@@ -20,6 +20,7 @@ project:
     - "tdc_pg.sv"
     - "tdc_delay_line.sv"
     - "rca.sv"
+    - "capture_reg.sv"
     - "pop_count_simple.sv"
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:

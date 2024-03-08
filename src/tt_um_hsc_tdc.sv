@@ -22,7 +22,7 @@ assign uio_out = 8'h00;
 localparam DL_TYPE="RCA";
 localparam POP_METHOD ="SV";
 localparam N = 64;
-localparam N_SYNC = 2;
+localparam N_SYNC = 1;
 
 localparam N_o = $clog2(N);
 
