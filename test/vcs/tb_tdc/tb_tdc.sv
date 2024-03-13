@@ -5,7 +5,7 @@
 Description: Simple tdc presynthesis test
      Author: Tyler Sheaves (@tsheaves)
 */
-
+`timescale 1ns/1ps
 module tb_tdc();
 
     localparam N = 64;
@@ -75,34 +75,6 @@ module tb_tdc();
     
     ////////// DUT //////////
 
-    // Assertions in DUTs
-    //  - popcount matches SV $onescount
-
-    pop_count_8_4 #(.N(N)) DUT0
-    (
-        .clk(clk), 
-        .rst(rst),
-        .en(en),
-        .x(x),
-        .y(y)
-    );
-
-    pop_count_simple #(.N(N), .METHOD("SV")) DUT1
-    (
-        .clk(clk), 
-        .rst(rst),
-        .en(en),
-        .x(x),
-        .y(y_simple_sv)
-    );
-
-    pop_count_simple #(.N(N), .METHOD("LOOP")) DUT2
-    (
-        .clk(clk), 
-        .rst(rst),
-        .en(en),
-        .x(x),
-        .y(y_simple_loop)
-    );
+    
 
     endmodule

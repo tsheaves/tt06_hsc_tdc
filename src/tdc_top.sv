@@ -17,6 +17,12 @@ module tdc_top #(
         pg_tog,
     output [$clog2(N):0]
         hw
+    `ifdef USE_POWER_PINS
+        , input  VGND
+        , input  VPWR
+        , input  VPB
+        , input  VNB
+    `endif  // USE_POWER_PINS
 );
 
 logic 
@@ -28,7 +34,7 @@ logic [N-1:0]
     sync_out;
 
 logic [N-1:0]
-    capt_reg_r [N_SYNC-1:0];
+    capt_reg_r [N_SYNC:0];
 
 tdc_pg pg(
 	.clk_launch(clk_launch),
@@ -41,26 +47,45 @@ tdc_pg pg(
   	.pg_out(pg_out)
 );
 
+(* keep *)
 delay_line #(
     .N(N),
     .DL_TYPE(DL_TYPE)
 ) dl_inst ( 
 	.in(pg_out),
 	.dl_out(dl_out)
+    `ifdef USE_POWER_PINS
+        , .VGND(VGND)
+        , .VPWR(VPWR)
+        , .VPB(VPB)
+        , .VNB(VNB)
+    `endif  // USE_POWER_PINS
 );
 
 ////////////////// TODO: Place in separate module 
 
 // Capture register - separated for placement
 (* keep *)
-capture_reg #(.WIDTH(N), .CLK_POLARITY(1)) dl_capt 
-    (.D(dl_out), .Q(capt_out), .EN(en), .CLK(clk_capture));
+capture_reg #(
+    .WIDTH(N)
+) dl_capt (   
+    .D(dl_out), 
+    .Q(capt_out), 
+    .EN(en), 
+    .CLK(clk_capture)
+    `ifdef USE_POWER_PINS
+        , .VGND(VGND)
+        , .VPWR(VPWR)
+        , .VPB(VPB)
+        , .VNB(VNB)
+    `endif  // USE_POWER_PINS
+);
 
 // Capture sync stages
 always_comb capt_reg_r[0] = capt_out;
 genvar i;
 generate
-    for(i=1; i<N_SYNC; i=i+1) begin : genblk_capt
+    for(i=1; i<=N_SYNC; i=i+1) begin : genblk_capt
         always_ff@(posedge clk_capture)
             if(rst)
                 capt_reg_r[i] <= {N{1'b0}};
@@ -68,7 +93,7 @@ generate
                 capt_reg_r[i] <= capt_reg_r[i-1];
     end
 endgenerate
-always_comb sync_out = capt_reg_r[N_SYNC-1];
+always_comb sync_out = capt_reg_r[N_SYNC];
 
 ////////////////// 
 

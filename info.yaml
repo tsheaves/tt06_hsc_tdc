@@ -22,6 +22,8 @@ project:
     - "rca.sv"
     - "capture_reg.sv"
     - "pop_count_simple.sv"
+    - "tt_export_sky130_bb_cells.v"
+
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs

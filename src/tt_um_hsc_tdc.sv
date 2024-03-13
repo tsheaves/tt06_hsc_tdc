@@ -58,7 +58,7 @@ always_comb begin
 end
 
 tdc_top #(
-    .N(64),
+    .N(N),
     .DL_TYPE(DL_TYPE),
     .N_SYNC(N_SYNC),
     .POP_METHOD(POP_METHOD)
@@ -72,6 +72,12 @@ tdc_top #(
     .pg_in(pg_in),
     .pg_tog(pg_tog),
     .hw(hw)
+    `ifdef USE_POWER_PINS
+        , .VGND(VGND)
+        , .VPWR(VPWR)
+        , .VPB(VPB)
+        , .VNB(VNB)
+    `endif  // USE_POWER_PINS
 );
 
 endmodule
