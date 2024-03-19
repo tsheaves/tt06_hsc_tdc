@@ -1,7 +1,8 @@
 module tdc_top #(
-    parameter n=64,    
-    parameter dl_type="rca",
-    parameter n_sync=2 // Must be gt 0
+    parameter N=64,    
+    parameter DL_TYPE="RCA",
+    parameter POP_METHOD="SV",
+    parameter N_SYNC=1 // Must be gt 0
 )(
     input logic
         clk_launch,
@@ -14,17 +15,29 @@ module tdc_top #(
     input logic
         pg_in,
         pg_tog,
-    output [$clog2(n):0]
+    output [$clog2(N):0]
         hw
+    `ifdef USE_POWER_PINS
+        , input  VGND
+        , input  VPWR
+//        , input  VPB
+//        , input  VNB
+    `endif  // USE_POWER_PINS
 );
 
 logic 
     pg_out;
-logic [n-1:0]
-    dl_out_r [n_sync];
+
+logic [N-1:0]
+    dl_out,
+    capt_out,
+    sync_out;
+
+logic [N-1:0]
+    capt_reg_r [N_SYNC:0];
 
 tdc_pg pg(
-	.clk_launch,
+	.clk_launch(clk_launch),
 	.rst(rst), 
     .en(en),
     .pg_in(pg_in), 
@@ -34,29 +47,65 @@ tdc_pg pg(
   	.pg_out(pg_out)
 );
 
+(* keep *)
 delay_line #(
-    .n(n),
-    .dl_type("rca")
-) ( 
+    .N(N),
+    .DL_TYPE(DL_TYPE)
+) dl_inst ( 
 	.in(pg_out),
-	.dl_out(dl_out[0])
+	.dl_out(dl_out)
+    `ifdef USE_POWER_PINS
+        , .VGND(VGND)
+        , .VPWR(VPWR)
+//        , .VPB(VPB)
+//        , .VNB(VNB)
+    `endif  // USE_POWER_PINS
 );
 
-// Combined capture & sync stages
-integer i;
-always@(posedge clk_capture)
-   for(i=1; i<n_sync+1; i=i+1)
-        dl_out_r[i] <= dl_out_r[i-1]; 
+////////////////// TODO: Place in separate module 
+
+// Capture register - separated for placement
+(* keep *)
+capture_reg #(
+    .WIDTH(N)
+) dl_capt (   
+    .D(dl_out), 
+    .Q(capt_out), 
+    .EN(en), 
+    .CLK(clk_capture)
+    `ifdef USE_POWER_PINS
+        , .VGND(VGND)
+        , .VPWR(VPWR)
+//        , .VPB(VPB)
+//        , .VNB(VNB)
+    `endif  // USE_POWER_PINS
+);
+
+// Capture sync stages
+always_comb capt_reg_r[0] = capt_out;
+genvar i;
+generate
+    for(i=1; i<=N_SYNC; i=i+1) begin : genblk_capt
+        always_ff@(posedge clk_capture)
+            if(rst)
+                capt_reg_r[i] <= {N{1'b0}};
+            else if(en)
+                capt_reg_r[i] <= capt_reg_r[i-1];
+    end
+endgenerate
+always_comb sync_out = capt_reg_r[N_SYNC];
+
+////////////////// 
 
 // Can swap out if needed for performance
 pop_count_simple #(
-    .N(n),
-    .METHOD("SV")
-)(
+    .N(N),
+    .POP_METHOD(POP_METHOD)
+) pc_inst (
 		.clk(clk_capture), 
         .rst(rst),
         .en(en),
-		.x(dl_out_r[n_sync]),
+		.x(sync_out),
 		.y(hw)
 );
 

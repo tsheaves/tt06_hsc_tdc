@@ -8,7 +8,7 @@ Description: Simple pop count methods
 module pop_count_simple 
 #(
     parameter N=64,
-    parameter METHOD="SV"
+    parameter POP_METHOD="SV"
 )(
 	input logic
 		clk, 
@@ -25,8 +25,8 @@ module pop_count_simple
  
     generate
         // Easy ways of computing pop count 
-        case(METHOD)
-            "LOOP": begin
+        case(POP_METHOD)
+            "LOOP": begin : loop_pop_genblk
                 always_comb begin
                     y_c = {$clog2(N)+1{1'b0}};
                     for(int i=0; i < N; i+=1) begin
@@ -34,7 +34,7 @@ module pop_count_simple
                     end
                 end
             end 
-            "SV": begin
+            "SV": begin : sv_pop_genblk
                 always_comb
                     y_c = $countones(x);
             end

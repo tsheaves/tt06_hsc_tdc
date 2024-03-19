@@ -75,8 +75,8 @@ tdc_top #(
     `ifdef USE_POWER_PINS
         , .VGND(VGND)
         , .VPWR(VPWR)
-        , .VPB(VPB)
-        , .VNB(VNB)
+//        , .VPB(VPB)
+//        , .VNB(VNB)
     `endif  // USE_POWER_PINS
 );
 

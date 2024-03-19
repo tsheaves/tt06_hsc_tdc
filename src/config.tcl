@@ -14,6 +14,10 @@
 # Users have reported that values up to 0.8 worked well for them.
 set ::env(PL_TARGET_DENSITY) 0.6
 
+set ::env(FP_PDN_MACRO_HOOKS) "\
+     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPWR VGND, \
+     tdc_inst.dl_capt.*.DFE VPWR VGND VPWR VGND"
+
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
 set ::env(CLOCK_PERIOD) "15"
@@ -22,7 +26,7 @@ set ::env(CLOCK_PERIOD) "15"
 set ::env(CLOCK_NET) {ui_in[0] ui_in[1]}
 
 # Custom SDC file for STA - includes the clock port below
-set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/tt_um_hsc_tdc.sdc]
+set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc]
 
 # Hold slack margin - Increase them in case you are getting hold violations.
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.1
@@ -33,14 +37,14 @@ set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
 # Manually place certain macros
-set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/DL_FILES/lef/*.lef]
-set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/DL_FILES/gds/*.gds]
-set ::env(EXTRA_LIBS) [glob $::env(DESIGN_DIR)/DL_FILES/lib/*.lib]
-set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/macro_placement.cfg]
+set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/std_cell_macros/lef/*.lef]
+set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
+set ::env(EXTRA_LIBS) [glob $::env(DESIGN_DIR)/std_cell_macros/lib/*.lib]
+set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/std_cell_macros/verilog/*.v]
 
-# Project area: 1x1 tiles                                                       
-set ::env(DIE_AREA) "0 0 161.00 111.52"
-set ::env(FP_DEF_TEMPLATE) "$::env(DESIGN_DIR)/../tt/def/tt_block_1x1_pg.def"
+set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
+
+set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 

@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # Geometry specs    
     grid_space_x = 0.460
-    std_cell_height = 2*2.720
+    std_cell_height = 2.720
 
     # TT single tile
     max_x=153.64
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     insts=[]
     up = True
     cell_orient = "N"
-    # DL zig-zags vertically
+    # DL zig-zags vertically if space is insufficicent
     for i in range(tdc_len):
         # Delay line element  
         insts.append(StdCellInstance(f"tdc_inst.dl_inst.dl_genblk.dl.rca_genblk\\[{i}\\].FA", (dl_loc[0], dl_loc[1]), cell_orient))
