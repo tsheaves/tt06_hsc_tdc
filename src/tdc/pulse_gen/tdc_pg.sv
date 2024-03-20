@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module tdc_pg (
 	input
 		clk_launch,
@@ -13,27 +14,31 @@ module tdc_pg (
   		pg_out
 );
 
-// import tdc_pkg::*;
-// ctrl_lines ctl_lines;
-`include "../pkg/tdc_pkg.sv"
+localparam
+    PG_IN=1'b0,
+    PG_TOG=1'b1;
+  
+localparam
+    BYPASS=1'b0,
+    REG=1'b1;
 
 logic 
 	mux_in_dout,
 	pg_r_out;
 
-always_comb
+always@(*)
 	case(pg_src) 
 		 PG_IN: mux_in_dout = pg_in;
 		PG_TOG: mux_in_dout = pg_tog;
 	endcase
 
-always_comb
+always@(*)
 	case(pg_bypass) 
-		BYPASS: pg_out = pg_r_out;
-		REG: pg_out = pg_tog;
+		REG: pg_out = pg_r_out;
+		BYPASS: pg_out = pg_tog;
 	endcase
 
-always_ff@(posedge clk_launch)
+always@(posedge clk_launch)
     if(rst) begin
         pg_r_out <= 1'b0;
     end else if(en)

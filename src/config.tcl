@@ -14,10 +14,6 @@
 # Users have reported that values up to 0.8 worked well for them.
 set ::env(PL_TARGET_DENSITY) 0.6
 
-set ::env(FP_PDN_MACRO_HOOKS) "\
-     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPWR VGND, \
-     tdc_inst.dl_capt.*.DFE VPWR VGND VPWR VGND"
-
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
 set ::env(CLOCK_PERIOD) "15"
@@ -36,15 +32,18 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Manually place certain macros
+# Import certain Macros from SkyWater130 separately so we can place them easily
 set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/std_cell_macros/lef/*.lef]
 set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
-set ::env(EXTRA_LIBS) [glob $::env(DESIGN_DIR)/std_cell_macros/lib/*.lib]
-set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/std_cell_macros/verilog/*.v]
+# set ::env(EXTRA_LIBS) [glob $::env(DESIGN_DIR)/std_cell_macros/lib/*.lib]
+# set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/std_cell_macros/verilog/*.v]
 
 set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
 
 set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
+set ::env(FP_PDN_MACRO_HOOKS) "\
+     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
+     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
@@ -58,7 +57,7 @@ source $::env(DESIGN_DIR)/user_config.tcl
 
 # Save some time
 set ::env(RUN_KLAYOUT_XOR) 0
-set ::env(RUN_KLAYOUT_DRC) 0
+set ::env(RUN_KLAYOUT_DRC) 1
 
 # Don't put clock buffers on the outputs
 set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) 0

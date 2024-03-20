@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module tdc_top #(
     parameter N=64,    
     parameter DL_TYPE="RCA",
@@ -17,12 +18,6 @@ module tdc_top #(
         pg_tog,
     output [$clog2(N):0]
         hw
-    `ifdef USE_POWER_PINS
-        , input  VGND
-        , input  VPWR
-//        , input  VPB
-//        , input  VNB
-    `endif  // USE_POWER_PINS
 );
 
 logic 
@@ -47,25 +42,17 @@ tdc_pg pg(
   	.pg_out(pg_out)
 );
 
-(* keep *)
 delay_line #(
     .N(N),
     .DL_TYPE(DL_TYPE)
 ) dl_inst ( 
 	.in(pg_out),
 	.dl_out(dl_out)
-    `ifdef USE_POWER_PINS
-        , .VGND(VGND)
-        , .VPWR(VPWR)
-//        , .VPB(VPB)
-//        , .VNB(VNB)
-    `endif  // USE_POWER_PINS
 );
 
 ////////////////// TODO: Place in separate module 
 
 // Capture register - separated for placement
-(* keep *)
 capture_reg #(
     .WIDTH(N)
 ) dl_capt (   
@@ -73,12 +60,6 @@ capture_reg #(
     .Q(capt_out), 
     .EN(en), 
     .CLK(clk_capture)
-    `ifdef USE_POWER_PINS
-        , .VGND(VGND)
-        , .VPWR(VPWR)
-//        , .VPB(VPB)
-//        , .VNB(VNB)
-    `endif  // USE_POWER_PINS
 );
 
 // Capture sync stages

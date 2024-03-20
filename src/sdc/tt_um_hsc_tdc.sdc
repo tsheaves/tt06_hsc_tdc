@@ -1,18 +1,21 @@
 # Define clocks for launch and capture
 set lc_period 15
-create_clock [get_ports {ui_in[0]}]  -name launch_clk  -period ${lc_period}
-create_clock [get_ports {ui_in[1]}]  -name capture_clk  -period ${lc_period}
 
-# CDC between launch and capture
-set_multicycle_path -start -hold -from [get_clocks launch_clk] -to [get_clocks capture_clk] 1
+create_clock [get_ports ui_in[0]]  -name launch_clk -period ${lc_period}
+create_clock [get_ports ui_in[1]]  -name capture_clk -period ${lc_period}
+set_clock_groups -asynchronous \
+   -group [get_clocks {launch_clk}] \
+   -group [get_clocks {user_clock2}]
+
+# Very conservative constraint between launch and capture clocks
 set_min_delay 0.25 -from [get_clocks launch_clk] -to [get_clocks capture_clk]
 set_max_delay [expr "${lc_period}/ 2"] -from [get_clocks launch_clk] -to [get_clocks capture_clk]
 
-# IO delays
+# Constrain input delays
 set_input_delay  -min  0.5 -clock [get_clocks launch_clk]  [get_ports {ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]}]
 set_input_delay  -max  0.5 -clock [get_clocks launch_clk]  [get_ports {ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]}]
 
-# Carry chain output 1.5 ns setup time, 1.5 ns hold time
+# Constrain output delays
 set_output_delay -min -1.5 -clock [get_clocks capture_clk] [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]}]
 set_output_delay -max  1.5 -clock [get_clocks capture_clk] [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]}]
 

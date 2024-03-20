@@ -1,32 +1,49 @@
-# SPDX-FileCopyrightText: © 2023 Uri Shaked <uri@tinytapeout.com>
-# SPDX-License-Identifier: MIT
-
 import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.clock import Clock, Timer
+from cocotb.triggers import ClockCycles, Timer
 
 @cocotb.test()
-async def test_adder(dut):
-  dut._log.info("Start")
-  
-  # Our example module doesn't use clock and reset, but we show how to use them here anyway.
-  clock = Clock(dut.clk, 10, units="us")
-  cocotb.start_soon(clock.start())
+async def test_tdc(dut):
+    dut._log.info("Start")
 
-  # Reset
-  dut._log.info("Reset")
-  dut.ena.value = 1
-  dut.ui_in.value = 0
-  dut.uio_in.value = 0
-  dut.rst_n.value = 0
-  await ClockCycles(dut.clk, 10)
-  dut.rst_n.value = 1
+    # Start launch at t=0
+    cocotb.start_soon(Clock(dut.clk_launch, period=15, units="ns").start())
+    await ClockCycles(dut.clk_launch, 1)
+    # Phase delay, then start capture
+    await Timer(6500, units='ps')
+    cocotb.start_soon(Clock(dut.clk_capture, period=15, units="ns").start())
+    await ClockCycles(dut.clk_capture, 1)
+    await ClockCycles(dut.clk_launch, 1)
 
-  # Set the input values, wait one clock cycle, and check the output
-  dut._log.info("Test")
-  dut.ui_in.value = 20
-  dut.uio_in.value = 30
+    # Reset and enable
+    dut._log.info("Reset")
+    # Enable the design
+    dut.ena.value = 1
+    # Select the toggle input
+    dut.pg_src.value = 0
+    # Bypass sync reg
+    dut.pg_bypass.value = 1
+    # Set the direct input
+    dut.pg_in.value = 0
+    # Assert reset
+    dut.rst_n.value = 0
+    # Give two ticks to propagate to both clocks
+    await ClockCycles(dut.clk_launch, 2)
+    # Deassert reset
+    dut.rst_n.value = 1
+    
+    # Observe HW samples
+    await ClockCycles(dut.clk_capture, 10)
 
-  await ClockCycles(dut.clk, 1)
+    # Select the direct input
+    dut.pg_src.value = 1
+    # Bypass sync reg
+    dut.pg_bypass.value = 1
+    # Set the direct input
+    dut.pg_in.value = 1
+    
+    # Observe HW samples
+    await ClockCycles(dut.clk_capture, 10)
 
-  assert dut.uo_out.value == 50
+    # Need to add checks
+    # assert dut.uo_out.value == 50

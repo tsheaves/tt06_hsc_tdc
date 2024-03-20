@@ -1,5 +1,5 @@
-// package tdc_pkg;
-
+package tdc_pkg;
+  
   typedef enum logic[0:0]{
     PG_IN=1'b0,
     PG_TOG=1'b1
@@ -28,4 +28,4 @@
     $display("   * Toggle mode  : ", ctl_lines.ctl_bypass.name());
   endfunction
 
-// endpackage
+endpackage

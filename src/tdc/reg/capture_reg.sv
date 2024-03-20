@@ -5,8 +5,8 @@
 Description: Gauranteed to be an n-bit DFFE register independent of inputs
      Author: Tyler Sheaves (@tsheaves)
 */
-`define REG_CELL tt_export_sky130_fd_sc_hd__edfxtp_1  
-
+`define REG_CELL sky130_fd_sc_hd__edfxtp_1  
+`timescale 1ns/1ps
 module capture_reg 
 #(parameter WIDTH=1)
 (
@@ -19,7 +19,6 @@ module capture_reg
 	generate 
 		genvar i;
 		for(i=0; i<WIDTH; i=i+1) begin : capt_genblk
-            (* keep *)
 			`REG_CELL DFE(
                 .Q(Q[i]),
                 .CLK(CLK), 
@@ -29,7 +28,7 @@ module capture_reg
                     , .VGND(VGND)
                     , .VPWR(VPWR)
                     , .VPB(VPB)
-                    , .VPN(VPN)
+                    , .VNB(VNB)
                 `endif  // USE_POWER_PINS
                 );
         end

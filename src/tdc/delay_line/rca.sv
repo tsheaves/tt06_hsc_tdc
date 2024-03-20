@@ -5,8 +5,8 @@
 Description: Guaranteed to be an adder independent of inputs
      Author: Tyler Sheaves (@tsheaves)
 */
-`define FA_CELL tt_export_sky130_fd_sc_hd__fa_1  
-
+`define FA_CELL sky130_fd_sc_hd__fa_1  
+`timescale 1ns/1ps
 module rca #(parameter WIDTH=32) ( 
 	input  [WIDTH-1:0] 	a, b,
 	input 			    ci,
@@ -32,7 +32,7 @@ module rca #(parameter WIDTH=32) (
                     , .VGND(VGND)
                     , .VPWR(VPWR)
                     , .VPB(VPB)
-                    , .VPN(VPN)
+                    , .VNB(VNB)
                 `endif  // USE_POWER_PINS
             );
         end

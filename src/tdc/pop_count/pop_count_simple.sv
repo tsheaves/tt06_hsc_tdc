@@ -5,6 +5,7 @@
 Description: Simple pop count methods
      Author: Tyler Sheaves (@tsheaves)
 */
+`timescale 1ns/1ps
 module pop_count_simple 
 #(
     parameter N=64,
@@ -27,7 +28,7 @@ module pop_count_simple
         // Easy ways of computing pop count 
         case(POP_METHOD)
             "LOOP": begin : loop_pop_genblk
-                always_comb begin
+                always@(*) begin
                     y_c = {$clog2(N)+1{1'b0}};
                     for(int i=0; i < N; i+=1) begin
                         y_c = y_c + {{$clog2(N){1'b0}}, x[i]}; 
@@ -42,7 +43,7 @@ module pop_count_simple
     endgenerate
 
     // Ouput registers
-    always_ff@(posedge clk) begin
+    always@(posedge clk) begin
         if(rst)
             y <= {$clog2(N)+1{1'b0}};
         else if(en)
