@@ -14,7 +14,7 @@ module rca #(parameter WIDTH=32) (
 	output			    co
 );
 
-	(* keep *) wire [WIDTH:0] c;
+	wire [WIDTH:0] c;
 	assign c[0] = ci;
 	assign co = c[WIDTH];
 	

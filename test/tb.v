@@ -1,11 +1,12 @@
-`default_nettype none `timescale 1ns / 1ps
+`default_nettype none 
+`timescale 1ns/1ps
 
 module tb ();
 
   // Dump the signals to a VCD file. You can view it with gtkwave.
   initial begin
     `ifdef GL_TEST
-        $sdf_annotate("../runs/wokwi/results/final/sdf/tt_um_hsc_tdc.sdf", tdc_inst) ;
+        $sdf_annotate("./rename_gl/renamed_sdf/multicorner/nom/tt_um_hsc_tdc.Typical.sdf", tdc_inst) ;
     `endif
     $dumpfile("tb.vcd");
     $dumpvars(0, tb);
@@ -39,11 +40,14 @@ module tb ();
     uio_oe;
 
     // Free-run toggle, will be driven from FPGA/test instrument
+    reg [1:0] count;    
     always@(posedge clk_launch)
         if(!rst_n)
-            pg_tog <= 1'b0;
+            count <= 2'b0;
         else
-            pg_tog <= ~pg_tog;
+            count <= count + 2'b1;
+    
+    assign pg_tog = count[1];
 
     // Rename TT I/O
     always@(*) begin

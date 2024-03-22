@@ -16,7 +16,7 @@ set ::env(PL_TARGET_DENSITY) 0.6
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
-set ::env(CLOCK_PERIOD) "15"
+set ::env(CLOCK_PERIOD) "20"
 
 # Define clock nets for CTS
 set ::env(CLOCK_NET) {ui_in[0] ui_in[1]}
@@ -44,6 +44,10 @@ set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
 set ::env(FP_PDN_MACRO_HOOKS) "\
      tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
      tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
+
+# set ::env(SYNTH_FLAT_TOP) 1
+# set ::env(SYNTH_AUTONAME) 1
+# set ::env(SYNTH_NO_FLAT) 1
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
@@ -75,7 +79,7 @@ set ::env(RIGHT_MARGIN_MULT) 6
 set ::env(FP_SIZING) absolute
 
 set ::env(PL_BASIC_PLACEMENT) {0}
-set ::env(GRT_ALLOW_CONGESTION) "1"
+set ::env(GRT_ALLOW_CONGESTION) "0"
 
 set ::env(FP_IO_HLENGTH) 2
 set ::env(FP_IO_VLENGTH) 2

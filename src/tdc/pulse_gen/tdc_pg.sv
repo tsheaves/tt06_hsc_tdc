@@ -19,8 +19,8 @@ localparam
     PG_TOG=1'b1;
   
 localparam
-    BYPASS=1'b0,
-    REG=1'b1;
+    BYPASS=1'b1,
+    REG=1'b0;
 
 logic 
 	mux_in_dout,
