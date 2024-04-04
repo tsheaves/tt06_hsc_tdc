@@ -41,9 +41,9 @@ set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
 set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
 
 set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
-set ::env(FP_PDN_MACRO_HOOKS) "\
-     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
-     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
+#set ::env(FP_PDN_MACRO_HOOKS) "\
+#     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
+#     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
 
 # set ::env(SYNTH_FLAT_TOP) 1
 # set ::env(SYNTH_AUTONAME) 1
