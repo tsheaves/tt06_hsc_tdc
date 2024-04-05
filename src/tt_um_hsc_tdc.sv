@@ -1,6 +1,5 @@
 `define default_netname none
-`timescale 1ns/1ps
-
+// `timescale 1ns/1ps
 module tt_um_hsc_tdc (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output reg  [7:0] uo_out,   // Dedicated outputs

@@ -1,64 +1,61 @@
 # Define clocks for launch and capture
 set lc_period $::env(CLOCK_PERIOD)
-
-create_clock [get_ports ui_in[0]]  -name launch_clk -period ${lc_period}
-create_clock [get_ports ui_in[1]]  -name capture_clk -period ${lc_period}
-
 set input_delay_value [expr ${lc_period} * $::env(IO_PCT)]
 set output_delay_value [expr ${lc_period} * $::env(IO_PCT)]
+set_max_fanout $::env(MAX_FANOUT_CONSTRAINT) [ current_design ]
+set cap_load [expr $::env(SYNTH_CAP_LOAD) / 1000.0]
 
-set_clock_groups -group [get_clocks launch_clk] -group [get_clocks capture_clk] -asynchronous -allow_paths
+# Define clocks
+create_clock [ get_ports "ui_in\[0\]"]  -name launch_clk -period ${lc_period}
+create_clock [ get_ports "ui_in\[1\]"]  -name capture_clk -period ${lc_period}
+create_clock [ get_ports "clk" ] -name rp2040_clk -period ${lc_period}
+
+# Remove clock nets from inputs
+set idx [ lsearch [ all_inputs ] "clk" ]
+set all_inputs_wo_clk [ lreplace [ all_inputs ] $idx $idx ]
+set idx [ lsearch $all_inputs_wo_clk "ui_in\[0\]" ]
+set all_inputs_wo_clk [ lreplace $all_inputs_wo_clk $idx $idx ]
+set idx [ lsearch $all_inputs_wo_clk "ui_in\[1\]" ]
+set all_inputs_wo_clk [ lreplace $all_inputs_wo_clk $idx $idx ]
+
+# Set I/O delays
+set_input_delay $input_delay_value -clock [ get_clocks rp2040_clk ] $all_inputs_wo_clk
+set_output_delay $output_delay_value -clock [ get_clocks rp2040_clk ] [ all_outputs ]
+set_input_delay $input_delay_value -clock [ get_clocks launch_clk ] $all_inputs_wo_clk
+set_output_delay $output_delay_value -clock [ get_clocks launch_clk ] [ all_outputs ]
+set_input_delay $input_delay_value -clock [ get_clocks capture_clk ] $all_inputs_wo_clk
+set_output_delay $output_delay_value -clock [ get_clocks capture_clk ] [ all_outputs ]
+
+# CDC between launch and capture is recorded
+set_clock_groups -group { rp2040_clk } -group { capture_clk launch_clk } -asynchronous -allow_paths
 
 # Achievable constraints between launch and capture clocks
-set_min_delay -ignore_clock_latency -from [get_clocks launch_clk] -to [get_clocks capture_clk]  0.0
-set_max_delay -ignore_clock_latency -from [get_clocks launch_clk] -to [get_clocks capture_clk] [expr "${lc_period}/2"]
+set_min_delay -from [get_clocks launch_clk] -to [get_clocks capture_clk]  0.0
+# This is fine because PG can be divided to whatever rate we'd like on the FPGA
+set_max_delay -from [get_clocks launch_clk] -to [get_clocks capture_clk] [expr "${lc_period}"]
 
-# Constrain input delays
-set_input_delay  -clock [get_clocks launch_clk]  -min 0.5 [get_ports {ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]}] 
-set_input_delay  -clock [get_clocks launch_clk]  -max 0.5 [get_ports {ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]}] 
+# Ignore direct path from pin to capture clock (we don't care if this is violated)
+set_false_path -from $all_inputs_wo_clk -to [get_clocks capture_clk]
 
-set_max_delay -ignore_clock_latency -from [get_clocks launch_clk] -to [get_clocks capture_clk] 0.0 
-set_max_delay -ignore_clock_latency -from [get_clocks launch_clk] -to [get_clocks capture_clk] 0.0
+# Setup driving cells
+set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) $all_inputs_wo_clk
 
-# Constrain output delays
-set_output_delay  -min -1.5 -clock [get_clocks capture_clk] [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]}]
-set_output_delay  -max  1.5 -clock [get_clocks capture_clk] [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]}]
-
-# Misc
-# Copied from default OpenLane SDC 
-set_max_fanout $::env(MAX_FANOUT_CONSTRAINT) [current_design]
-if { [info exists ::env(MAX_TRANSITION_CONSTRAINT)] } {
-    set_max_transition $::env(MAX_TRANSITION_CONSTRAINT) [current_design]
-}
-
-if { ![info exists ::env(SYNTH_CLK_DRIVING_CELL)] } {
-    set ::env(SYNTH_CLK_DRIVING_CELL) $::env(SYNTH_DRIVING_CELL)
-}
-
-if { ![info exists ::env(SYNTH_CLK_DRIVING_CELL_PIN)] } {
-    set ::env(SYNTH_CLK_DRIVING_CELL_PIN) $::env(SYNTH_DRIVING_CELL_PIN)
-}
-
-set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) [get_ports {ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]}]
-set_driving_cell -lib_cell $::env(SYNTH_CLK_DRIVING_CELL) -pin $::env(SYNTH_CLK_DRIVING_CELL_PIN) [get_ports {ui_in[0]}]
-set_driving_cell -lib_cell $::env(SYNTH_CLK_DRIVING_CELL) -pin $::env(SYNTH_CLK_DRIVING_CELL_PIN) [get_ports {ui_in[1]}]
-
-set cap_load [expr $::env(SYNTH_CAP_LOAD) / 1000.0]
-puts "\[INFO\]: Setting load to: $cap_load"
+# Set output cap
 set_load  $cap_load [all_outputs]
 
-# clock jitter
+# Clock jitter
 puts "\[INFO\]: Setting clock uncertainity to: $::env(SYNTH_CLOCK_UNCERTAINTY)"
+set_clock_uncertainty $::env(SYNTH_CLOCK_UNCERTAINTY) [get_clocks rp2040_clk]
 set_clock_uncertainty $::env(SYNTH_CLOCK_UNCERTAINTY) [get_clocks launch_clk]
 set_clock_uncertainty $::env(SYNTH_CLOCK_UNCERTAINTY) [get_clocks capture_clk]
 
-# clock slew
+# Clock slew
 puts "\[INFO\]: Setting clock transition to: $::env(SYNTH_CLOCK_TRANSITION)"
+set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks rp2040_clk]
 set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks launch_clk]
 set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks capture_clk]
 
-# make everything worse by SYNTH_TIMING_DERATE
-puts "\[INFO\]: Setting timing derate to: [expr {$::env(SYNTH_TIMING_DERATE) * 100}] %"
+# Make everything worse by SYNTH_TIMING_DERATE
 set_timing_derate -early [expr {1-$::env(SYNTH_TIMING_DERATE)}]
 set_timing_derate -late [expr {1+$::env(SYNTH_TIMING_DERATE)}]
 

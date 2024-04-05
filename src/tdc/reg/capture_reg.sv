@@ -6,7 +6,7 @@ Description: Gauranteed to be an n-bit DFFE register independent of inputs
      Author: Tyler Sheaves (@tsheaves)
 */
 `define REG_CELL sky130_fd_sc_hd__edfxtp_1  
-`timescale 1ns/1ps
+// `timescale 1ns/1ps
 module capture_reg 
 #(parameter WIDTH=1)
 (

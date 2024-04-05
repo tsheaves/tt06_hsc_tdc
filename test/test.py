@@ -28,8 +28,8 @@ class TDCCtrl:
             "PG_TOG" : 1 
         }
         self.reg_bypass = {
-            "BYPASS" : 0,
-            "REG"    : 1
+            "BYPASS" : 1,
+            "REG"    : 0
         }
     
     @cocotb.coroutine
@@ -59,36 +59,32 @@ class TDCCtrl:
         yield cocotb.start_soon(self.__get_samples__()) 
 
     async def __start_clks__(self):    
-        # Start launch at t=0
+        # Start launch clk
         self.clock_launch_coru = cocotb.start_soon(Clock(self.dut.clk_launch, period=self.clk_period, units="ns").start())
-        await ClockCycles(self.dut.clk_launch, 1)
-        # Phase delay, then start capture
-        await Timer(self.theta_ps, units='ps')
-        self.clock_capt_coru   = cocotb.start_soon(Clock(self.dut.clk_capture, period=self.clk_period, units="ns").start())
-        await ClockCycles(self.dut.clk_capture, 1)
         await RisingEdge(self.dut.clk_launch)
+        # Phase delay capture clk start
+        await Timer(self.theta_ps, units='ps')
+        # Start capture clk
+        self.clock_capt_coru   = cocotb.start_soon(Clock(self.dut.clk_capture, period=self.clk_period, units="ns").start())
+        await RisingEdge(self.dut.clk_capture)
+        # Now safe to deassert reset, future phase-shifts can keep reset deasserted
+        self.dut.rst_n.value = 1
     
     async def __restart_clks__(self):
         if(self.clock_launch_coru != None):
-            await ClockCycles(self.dut.clk_launch, 1)
+            await RisingEdge(self.dut.clk_launch)
             self.clock_launch_coru.kill()
         if(self.clock_capt_coru != None):
-            await ClockCycles(self.dut.clk_capture, 1)
+            await RisingEdge(self.dut.clk_capture)
             self.clock_capt_coru.kill()
         self.clock_launch_coru = None
         self.clock_capt_coru = None
         start_clocks_thread = cocotb.start_soon(self.__start_clks__())
         await start_clocks_thread
-        await RisingEdge(self.dut.clk_launch)
 
     async def __reset_design__(self):
-        if(self.clock_launch_coru != None and self.clock_capt_coru != None):
-            await ClockCycles(self.dut.clk_launch, 1)
-            self.dut.ena.value = 1
-            self.dut.rst_n.value = 0
-            await ClockCycles(self.dut.clk_launch, 3)
-            self.dut.rst_n.value = 1
-            await RisingEdge(self.dut.clk_launch)
+        self.dut.ena.value = 1
+        self.dut.rst_n.value = 0
     
     async def __pg_in_byp_reg__(self):
         self.dut.pg_src.value = self.src_ctrl["PG_IN"]
@@ -110,7 +106,6 @@ class TDCCtrl:
         '''
         If the pg is toggling and clocks are active, collect n traces
         '''
-        await ClockCycles(self.dut.clk_launch, 1)
         if(self.dut.pg_src.value == self.src_ctrl["PG_TOG"]):
             if(self.clock_launch_coru != None and self.clock_capt_coru != None):
                 for i in range(self.n_samples):
@@ -122,14 +117,15 @@ class TDCCtrl:
                     # Wait for a rising edge of the toggle input
                     await RisingEdge(self.dut.pg_tog)
                     # Depending on setting, wait for input propagation
-                    if(self.dut.pg_src.value == self.reg_bypass["REG"]):
+                    if(self.dut.pg_bypass.value == self.reg_bypass["REG"]):
                         await RisingEdge(self.dut.clk_launch)
-                    # Wait for delay line output propagation - N-sync stages
-                    for wait_clk in range(self.n_sync_stages):
+                    # Wait for delay line output propagation
+                    # +2 - +1 HW delay output stage, +1 sampling immediately @posedge
+                    for wait_clk in range(self.n_sync_stages + 2):
                         await RisingEdge(self.dut.clk_capture)
                     # Get two sample groups
                     for sample in range(4):                
-                        # Additional clock for capture register
+                        # Resample each cycle
                         await RisingEdge(self.dut.clk_capture)
                         time_step = utils.get_sim_time(units='step')
                         # Sample hw
@@ -142,28 +138,29 @@ class TDCCtrl:
                             hws.append("x")
                             hws_inv.append("x")
                             sim_times.append(time_step)
-                    # Collect data on the last group (removes potential bias from reset)
+                    # Collect data
                     self.hw_samples["PULSE_POS"] = self.hw_samples["PULSE_POS"] + pulse_positions
                     self.hw_samples["HW_OUT"]  =  self.hw_samples["HW_OUT"] + hws
                     self.hw_samples["HW_OUT_INV"] = self.hw_samples["HW_OUT_INV"] + hws_inv
                     self.hw_samples["SIM_TIME"] = self.hw_samples["SIM_TIME"] + sim_times
+                    await RisingEdge(self.dut.clk_launch)
         await RisingEdge(self.dut.clk_launch) 
 
 @cocotb.test()
 async def test_tdc(dut):
     dut._log.info("Start")
-    f_clk_ns = 40
+    f_clk_ns = 54
     # 1 for output of TDC, 1 for output of thermometer to HW encoder
-    output_sync_stages = 2
+    output_sync_stages = 1
     tdc_ctrl = TDCCtrl(clk_period=f_clk_ns, dut=dut, n_sync_stages=output_sync_stages)
-    for theta_ps in range(10, 2*f_clk_ns*1000+1, 10):
+    pg_cfg_thread = cocotb.start_soon(tdc_ctrl.pg_cfg("PG_TOG", "PG_BYPASS"))
+    await pg_cfg_thread
+    reset_thread = cocotb.start_soon(tdc_ctrl.reset_design())
+    await reset_thread
+    for theta_ps in range(0, 2*f_clk_ns*1000+1, 10):
         set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
         await set_theta_thread
-        reset_thread = cocotb.start_soon(tdc_ctrl.reset_design())
-        await reset_thread
-        pg_cfg_thread = cocotb.start_soon(tdc_ctrl.pg_cfg("PG_TOG", "PG_REG"))
-        await pg_cfg_thread
-        get_samples_thread = cocotb.start_soon(tdc_ctrl.get_samples(2))
+        get_samples_thread = cocotb.start_soon(tdc_ctrl.get_samples(1))
         await get_samples_thread
     # Writing to CSV to avoid use of Pandas (not included in TT venv)
     with open('./theta_sweep.csv', 'w', newline='') as f_output:

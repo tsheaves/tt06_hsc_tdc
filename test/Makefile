@@ -1,13 +1,10 @@
-SHELL := bash
-# Makefile
-# See https://docs.cocotb.org/en/stable/quickstart.html for more info
-
-# defaults
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src/
 FINAL_DIR = $(PWD)/../runs/wokwi/results/final
-SDF_FILE = $(FINAL_DIR)/sdf/multicorner/nom/tt_um_hsc_tdc.Typical.sdf
+SDF_FILE = $(FINAL_DIR)/sdf/multicorner/max/tt_um_hsc_tdc.Slowest.sdf
+
 GLN = $(FINAL_DIR)/verilog/gl/tt_um_hsc_tdc.v
+# For SDF annotation in iverilog
 GLN_RENAMED = $(PWD)/rename_gl/gln/tt_um_hsc_tdc.v
 
 SKYWATER_STD_CELL_FIXED =  $(PWD)/skywater_stdcell_fixed
@@ -58,6 +55,7 @@ endif
 ifeq ($(SIM), vcs)
 
     ifneq ($(GATES),yes)
+
         SIM_BUILD		   = sim_build/gl
         COMPILE_ARGS      += +lint=all
         COMPILE_ARGS      += -LDFLAGS "-Wl,--no-as-needed"
@@ -70,25 +68,26 @@ ifeq ($(SIM), vcs)
         VERILOG_SOURCES   += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
         VERILOG_SOURCES   += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
         VERILOG_SOURCES   += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
-        $(info    idx is $(idx))
 
     else
+
         SIM_BUILD		   = sim_build/gl
         COMPILE_ARGS      += +lint=all
         COMPILE_ARGS      += -LDFLAGS "-Wl,--no-as-needed"
-        COMPILE_ARGS      += -debug_access+all -negdelay +neg_tchk
         COMPILE_ARGS      += +define+UNIT_DELAY=\#1
         COMPILE_ARGS      += +define+USE_POWER_PINS
-        COMPILE_ARGS      += +verilog1995ext+.v -acc+2
-        COMPILE_ARGS      += -nc -full64 -sverilog +v2k -ntb -debug_access+all -tb_timescale=1ns/1ps +vcs+vcdpluson
-        COMPILE_ARGS      += +sdfverbose +allmtm +csdf+precompile +csdf+precomp+dir+sdf_vcs
-        COMPILE_ARGS      += -sdf max:tb.tdc_inst:$(SDF_FILE)
+        # COMPILE_ARGS      += +verilog1995ext+.v +v2k
+        COMPILE_ARGS      += -debug_access+all
+        COMPILE_ARGS      += -full64 
+        COMPILE_ARGS      += -sverilog 
+        COMPILE_ARGS      += -tb_timescale=1ns/1ps 
+        COMPILE_ARGS      += +vcs+vcdpluson
+        COMPILE_ARGS      += +sdfverbose +csdf+precompile +csdf+precomp+dir+sdf_vcs
+        COMPILE_ARGS      += -sdf min:tb.tdc_inst:$(SDF_FILE) +neg_tchk
+        COMPILE_ARGS      += -v $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
         COMPILE_ARGS      += -v $(SKYWATER_STD_CELL_FIXED)/primitives.v
-        # COMPILE_ARGS     += -file $(PWD)/cdc_registers.tchk
-        SIM_ARGS          += -vcd waves.vcd +maxdelays -ucli -i $(PWD)/cdc_registers.tchk
-        # this gets copied in by the GDS action workflow
+        SIM_ARGS          += -vcd waves.vcd -ucli -i $(PWD)/cdc_registers.tchk
         VERILOG_SOURCES   += $(GLN)
-        VERILOG_SOURCES   += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
 
     endif
 

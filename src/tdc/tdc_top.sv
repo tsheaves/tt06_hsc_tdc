@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+// `timescale 1ns/1ps
 module tdc_top #(
     parameter N=64,    
     parameter DL_TYPE="RCA",

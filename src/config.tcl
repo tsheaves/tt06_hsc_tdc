@@ -12,17 +12,11 @@
 
 # PL_TARGET_DENSITY - You can increase this if Global Placement fails with error GPL-0302.
 # Users have reported that values up to 0.8 worked well for them.
-set ::env(PL_TARGET_DENSITY) 0.6
+set ::env(PL_TARGET_DENSITY) 0.8
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
-set ::env(CLOCK_PERIOD) "25"
-
-# Define clock nets for CTS
-set ::env(CLOCK_NET) {ui_in[0] ui_in[1]}
-
-# Custom SDC file for STA - includes the clock port below
-set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc]
+set ::env(CLOCK_PERIOD) "30"
 
 # Hold slack margin - Increase them in case you are getting hold violations.
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.1
@@ -32,18 +26,15 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Import certain Macros from SkyWater130 - manual macro placement only works if we do this
-set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/std_cell_macros/lef/*.lef]
-set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
-# set ::env(EXTRA_LIBS) [glob $::env(DESIGN_DIR)/std_cell_macros/lib/*.lib]
-# set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/std_cell_macros/verilog/*.v]
-
+# Import to trick OpenLane into placing StdCell macros where we want them
+set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/std_cell_macros/lef/dummy.lef]
+# set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
 set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
 
 set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
-set ::env(FP_PDN_MACRO_HOOKS) "\
-     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
-     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
+#set ::env(FP_PDN_MACRO_HOOKS) "\
+#     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
+#     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
 
 # set ::env(SYNTH_FLAT_TOP) 1
 # set ::env(SYNTH_AUTONAME) 1
@@ -94,7 +85,9 @@ set ::env(DECAP_CELL) "\
 
 # Clock
 set ::env(RUN_CTS) 1
-set ::env(CLOCK_PORT) {ui_in[0] ui_in[1]}
+set ::env(CLOCK_PORT) "ui_in\\\[0\\\]"
+# Custom SDC file for STA - includes the clock port below
+set ::env(BASE_SDC_FILE) [glob $::env(DESIGN_DIR)/sdc/tt_um_hsc_tdc.sdc]
 
 # Don't use power rings or met5 layer
 set ::env(DESIGN_IS_CORE) 0

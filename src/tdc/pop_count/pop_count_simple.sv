@@ -5,7 +5,7 @@
 Description: Simple pop count methods
      Author: Tyler Sheaves (@tsheaves)
 */
-`timescale 1ns/1ps
+// `timescale 1ns/1ps
 module pop_count_simple 
 #(
     parameter N=64,
