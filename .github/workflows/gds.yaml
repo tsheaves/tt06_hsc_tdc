@@ -14,7 +14,7 @@ jobs:
           submodules: recursive
           
       - name: symb_link_extra_step
-        run: mkdir -p  /home/runner/work/runs/wokwi/reports/signoff/31-sta-rcx_nom && mkdir -p  /home/runner/work/runs/wokwi/reports/signoff/30-sta-rcx_nom && ln -s  /home/runner/work/runs/wokwi/reports/signoff/30-sta-rcx_nom /home/runner/work/runs/wokwi/reports/signoff/31-sta-rcx_nom
+        run: mkdir -p  /home/runner/work/tt06_hsc_tdc/work/runs/wokwi/reports/signoff/31-sta-rcx_nom && mkdir -p  /home/runner/work/tt06_hsc_tdc/work/runs/wokwi/reports/signoff/signoff/30-sta-rcx_nom && ln -s  /home/runner/work/tt06_hsc_tdc/work/runs/wokwi/reports/signoff/31-sta-rcx_nom/multi_corner_sta.checks.rpt /home/runner/work/tt06_hsc_tdc/work/runs/wokwi/reports/signoff/31-sta-rcx_nom/multi_corner_sta.checks.rpt
         
       - name: Build GDS
         uses: TinyTapeout/tt-gds-action@tt06
