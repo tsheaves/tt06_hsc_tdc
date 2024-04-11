@@ -12,7 +12,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-
+          
+      - name: symb_link_extra_step
+        cmd: mkdir -p  ./runs/wokwi/reports/signoff/31-sta-rcx_nom && mkdir -p  ./runs/wokwi/reports/signoff/30-sta-rcx_nom && ln -s ./runs/wokwi/reports/signoff/30-sta-rcx_nom ./runs/wokwi/reports/signoff/30-sta-rcx_nom
+        
       - name: Build GDS
         uses: TinyTapeout/tt-gds-action@tt06
   
