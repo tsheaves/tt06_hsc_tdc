@@ -3,7 +3,7 @@ project:
   title:        "UCSC HW Systems Collective, TDC"  # Project title
   author:       "Tyler Sheaves"                    # Your name
   discord:      "tsheaves"                         # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "A SPI-controlled TDC."            # One line description of what your project does
+  description:  "A tiny TDC."                      # One line description of what your project does
   language:     "SystemVerilog"                    # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:      66000000                          # Clock frequency in Hz (or 0 if not applicable)
 
