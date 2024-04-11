@@ -52,7 +52,7 @@ source $::env(DESIGN_DIR)/user_config.tcl
 
 # Save some time
 set ::env(RUN_KLAYOUT_XOR) 0
-set ::env(RUN_KLAYOUT_DRC) 1
+set ::env(RUN_KLAYOUT_DRC) 0
 
 # Don't put clock buffers on the outputs
 set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) 0
@@ -70,7 +70,7 @@ set ::env(RIGHT_MARGIN_MULT) 6
 set ::env(FP_SIZING) absolute
 
 set ::env(PL_BASIC_PLACEMENT) {0}
-set ::env(GRT_ALLOW_CONGESTION) "0"
+set ::env(GRT_ALLOW_CONGESTION) "1"
 
 set ::env(FP_IO_HLENGTH) 2
 set ::env(FP_IO_VLENGTH) 2
