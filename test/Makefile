@@ -7,6 +7,8 @@ GLN = $(FINAL_DIR)/verilog/gl/tt_um_hsc_tdc.v
 # For SDF annotation in iverilog
 GLN_RENAMED = $(PWD)/rename_gl/gln/tt_um_hsc_tdc.v
 
+SIM=icarus
+
 SKYWATER_STD_CELL_FIXED =  $(PWD)/skywater_stdcell_fixed
 PROJECT_SOURCES = \
     tt_um_hsc_tdc.sv \
