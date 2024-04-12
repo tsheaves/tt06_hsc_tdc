@@ -9,14 +9,14 @@ Description: Guaranteed to be an and chain independent of inputs
 `timescale 1ns/1ps
 module dand #(parameter WIDTH=32) ( 
 	input 			    in_i,
-	output [WIDTH-1:0]	ffout_o,
-	output			    out_o
+	output [WIDTH-1:0]	ffout_o
+	//output			    out_o
 );
 
 	wire [n-1:0] ffout_w;
 	assign ffout_o = ffout_w;
 	
-	`AND_CELL DA ( 
+	`AND_CELL DA0 ( 
                 .X(ffout_w[0]), 
                 .A(1'b1), 
                 .B(in_i)
