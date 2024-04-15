@@ -20,7 +20,7 @@ jobs:
           ln -s  runs/wokwi/reports/signoff/31-sta-rcx_nom/* runs/wokwi/reports/signoff/30-sta-rcx_nom
           
       - name: Build GDS
-        uses: TinyTapeout/tt-gds-action@tt06
+        uses: tsheaves/tt06_hsc_tdc/tt-gds-action@master
   
   precheck:
     needs: gds
