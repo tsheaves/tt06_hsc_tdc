@@ -13,8 +13,8 @@ jobs:
         with:
           submodules: recursive
           
-  call-workflow-in-local-repo:     
-    uses: ./.github/workflows/gds_action.yml
+      - name: Build GDS
+        uses: tsheaves/tt-gds-action@tt06
   
   precheck:
     needs: gds
