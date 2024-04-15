@@ -5,6 +5,7 @@
 *.vpd
 *.png
 *.svg
+*.sh
 *.ipynb_checkpoints
 *.vdb
 src/std_cell_macros/Deprecated_Copy_Individual_StdCells
