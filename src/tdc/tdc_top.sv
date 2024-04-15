@@ -9,7 +9,9 @@ module tdc_top #(
         clk_launch,
         clk_capture,
         rst,
-        en,    
+        en,
+    input logic
+        val_in,    
     input logic 
         pg_src,
         pg_bypass,
@@ -17,7 +19,9 @@ module tdc_top #(
         pg_in,
         pg_tog,
     output [$clog2(N):0]
-        hw
+        hw,
+    logic
+        val_out
 );
 
 logic 
@@ -31,15 +35,25 @@ logic [N-1:0]
 logic [N-1:0]
     capt_reg_r [N_SYNC:0];
 
+logic [N-1:0]
+    val_out_sync_r;
+
+logic
+    val_out_pg,
+    val_out_capt,
+    val_out_sync;
+
 tdc_pg pg(
 	.clk_launch(clk_launch),
 	.rst(rst), 
     .en(en),
+    .val_in(val_in),
     .pg_in(pg_in), 
     .pg_tog(pg_tog),	
     .pg_src(pg_src),
   	.pg_bypass(pg_bypass),
-  	.pg_out(pg_out)
+  	.pg_out(pg_out),
+    .val_out(val_out_pg)
 );
 
 delay_line #(
@@ -62,6 +76,14 @@ capture_reg #(
     .CLK(clk_capture)
 );
 
+always@(posedge clk) begin
+    if(rst) begin
+        val_out_capt <= 1'b0;
+    end else if(en)
+        val_out_capt <= val_out_pg;
+    end
+end
+
 // Capture sync stages
 always_comb capt_reg_r[0] = capt_out;
 genvar i;
@@ -76,6 +98,20 @@ generate
 endgenerate
 always_comb sync_out = capt_reg_r[N_SYNC];
 
+// Valid sync stages
+always_comb val_out_sync_r[0] = val_out_capt;
+genvar i;
+generate
+    for(i=1; i<=N_SYNC; i=i+1) begin : genblk_capt
+        always_ff@(posedge clk_capture)
+            if(rst)
+                val_out_sync_r[i] <= {N{1'b0}};
+            else if(en)
+                val_out_sync_r[i] <= val_out_sync_r[i-1];
+    end
+endgenerate
+always_comb val_out_sync = val_out_sync_r[N_SYNC];
+
 ////////////////// 
 
 // Can swap out if needed for performance
@@ -83,11 +119,13 @@ pop_count_simple #(
     .N(N),
     .POP_METHOD(POP_METHOD)
 ) pc_inst (
-		.clk(clk_capture), 
-        .rst(rst),
-        .en(en),
-		.x(sync_out),
-		.y(hw)
+    .clk(clk_capture), 
+    .rst(rst),
+    .en(en),
+    .val_in(val_out_sync),
+    .x(sync_out),
+    .y(hw),
+    .val_out(val_out)
 );
 
 endmodule

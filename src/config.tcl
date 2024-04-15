@@ -27,18 +27,9 @@ set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
 # Import to trick OpenLane into placing StdCell macros where we want them
-set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/std_cell_macros/lef/dummy.lef]
-# set ::env(EXTRA_GDS_FILES) [glob $::env(DESIGN_DIR)/std_cell_macros/gds/*.gds]
+set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/dummy_macro/lef/dummy.lef]
 set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
-
 set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
-#set ::env(FP_PDN_MACRO_HOOKS) "\
-#     tdc_inst.dl_inst.dl_genblk.dl.*.FA VPWR VGND VPB VNB, \
-#     tdc_inst.dl_capt.*.DFE VPWR VGND VPB VNB"
-
-# set ::env(SYNTH_FLAT_TOP) 1
-# set ::env(SYNTH_AUTONAME) 1
-# set ::env(SYNTH_NO_FLAT) 1
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 

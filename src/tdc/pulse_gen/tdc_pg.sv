@@ -4,6 +4,7 @@ module tdc_pg (
 		clk_launch,
 		rst, 
         en,
+        val_in,
     input
   		pg_in, 
         pg_tog,	
@@ -11,7 +12,8 @@ module tdc_pg (
 		pg_src,
   		pg_bypass,
   	output logic
-  		pg_out
+  		pg_out,
+        val_out
 );
 
 localparam
@@ -24,7 +26,8 @@ localparam
 
 logic 
 	mux_in_dout,
-	pg_r_out;
+	pg_r_out,
+    val_r_out;
 
 always@(*)
 	case(pg_src) 
@@ -34,14 +37,22 @@ always@(*)
 
 always@(*)
 	case(pg_bypass) 
-		REG: pg_out = pg_r_out;
-		BYPASS: pg_out = pg_tog;
+		REG: begin
+            pg_out = pg_r_out;
+            val_out = val_r_out;
+        end
+		BYPASS: begin
+            pg_out = pg_tog;
+            val_out = val_in;
+        end
 	endcase
 
 always@(posedge clk_launch)
     if(rst) begin
         pg_r_out <= 1'b0;
-    end else if(en)
+        val_r_out <= 1'b0;
+    end else if(en) begin
         pg_r_out <= mux_in_dout;
-    
+        val_r_out <= val_in;
+    end
 endmodule

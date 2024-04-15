@@ -15,10 +15,13 @@ module pop_count_simple
 		clk, 
         rst,
         en,
+        val_in,
     input logic [N-1:0]
 		x,
 	output logic [$clog2(N):0]
-		y
+		y,
+    output logic
+        val_out
 );
 
     logic [$clog2(N):0]
@@ -44,10 +47,13 @@ module pop_count_simple
 
     // Ouput registers
     always@(posedge clk) begin
-        if(rst)
+        if(rst) begin
             y <= {$clog2(N)+1{1'b0}};
-        else if(en)
+            val_out <= 1'b0;
+        end else if(en) begin
             y <= y_c;
+            val_out <= val_in;
+        end
     end
 
 `ifdef ASSERT_ON

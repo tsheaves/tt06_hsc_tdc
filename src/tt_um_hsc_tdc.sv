@@ -31,10 +31,29 @@ logic
     pg_src,
     pg_bypass,
     pg_in,
-    pg_tog;
+    pg_tog,
+    val_in;
 
 logic [N_o:0]
     hw;
+
+logic
+    val_out;
+
+generate begin
+    if(N_o+1 == 7) begin
+        always@(*) begin
+            uo_out[N_o:0] = hw;
+            uo_out[7] = val_out;
+        end
+    end else if(N_o+1 < 7) begin
+        always@(*) begin
+            uo_out[6:N_o+1] = {6-N_o{1'b0}}; 
+            uo_out[N_o:0] = hw;
+            uo_out[7] = val_out;
+        end
+    end
+end
 
 // Pin mapping
 always@(*) begin
@@ -44,8 +63,7 @@ always@(*) begin
     pg_bypass     = ui_in[3];
     pg_in         = ui_in[4];
     pg_tog        = ui_in[5];
-    uo_out[7:N_o+1] = {7-N_o{1'b0}}; 
-    uo_out[N_o:0] = hw;
+    val_in        = ui_in[6];
 end
 
 tdc_top #(
@@ -57,12 +75,14 @@ tdc_top #(
     .clk_launch(clk_launch),
     .clk_capture(clk_capture),
     .rst(!rst_n),
-    .en(ena),    
+    .en(ena),
+    .val_in(val_in),    
     .pg_src(pg_src),
     .pg_bypass(pg_bypass),
     .pg_in(pg_in),
     .pg_tog(pg_tog),
-    .hw(hw)
+    .hw(hw),
+    .val_out(val_out)
 );
 
 endmodule
