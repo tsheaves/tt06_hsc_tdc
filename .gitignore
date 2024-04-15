@@ -19,6 +19,7 @@ test/gate_level_netlist.v
 test/*.csv
 test/*.key
 test/rename_gl
-test/.tchk
-text/.xml
+test/*.tchk
+text/*.xml
+test/vcs
 tt/
