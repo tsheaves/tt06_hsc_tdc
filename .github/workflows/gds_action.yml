@@ -5,15 +5,11 @@ branding:
   icon: layers
 
 runs:
-  using: 'composite'
-  steps:
+	using: 'composite'
+	steps:
     - name: Set up environment variables
       shell: bash
       run: |
-        # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
-        #           other actions in this repository precheck/action.yml, gl_test/action.yml,
-        #           and eqy_test/action.yml
-        #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
         cat << EOF >> $GITHUB_ENV
         OPENLANE_TAG=2024.04.02
         OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.02
@@ -65,6 +61,12 @@ runs:
       shell: bash
       run: find runs/wokwi/
 
+    - name: symb_link_extra_step
+      run: |
+        mkdir -p  runs/wokwi/reports/signoff/31-sta-rcx_nom
+        mkdir -p  runs/wokwi/reports/signoff/30-sta-rcx_nom
+        ln -s  runs/wokwi/reports/signoff/31-sta-rcx_nom/* runs/wokwi/reports/signoff/30-sta-rcx_nom
+   
     - name: Linter output
       if: always()
       shell: bash
