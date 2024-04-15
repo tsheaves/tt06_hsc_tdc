@@ -18,9 +18,9 @@ module tdc_top #(
     input logic
         pg_in,
         pg_tog,
-    output [$clog2(N):0]
+    output logic [$clog2(N):0]
         hw,
-    logic
+    output logic
         val_out
 );
 
