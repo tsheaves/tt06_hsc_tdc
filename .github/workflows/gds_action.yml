@@ -5,8 +5,8 @@ branding:
   icon: layers
 
 runs:
-	using: 'composite'
-	steps:
+  using: 'composite'
+  steps:
     - name: Set up environment variables
       shell: bash
       run: |
