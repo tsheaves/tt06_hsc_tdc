@@ -9,7 +9,7 @@ module tb ();
         $sdf_annotate("./rename_gl/renamed_sdf/multicorner/nom/tt_um_hsc_tdc.Typical.sdf", tdc_inst) ;
     `endif
     `ifdef WAVES
-        $dumpfile("waves.vcd");
+        $dumpfile("tb.vcd");
         $dumpvars(0, tb);
     `endif
     #1;
@@ -45,7 +45,7 @@ module tb ();
     uo_out,
     uio_out,
     uio_oe;
-
+    
     // Free-run toggle, will be driven from FPGA/test instrument
     reg [1:0] count;    
     always@(posedge clk_launch)
@@ -68,6 +68,9 @@ module tb ();
         ui_in[7] = 1'b1;
         hw = uo_out[6:0];
         val_out = uo_out[7];
+        // Unused
+        uio_in = 8'hFF;
+        clk = 1'b0;
     end
 
     tt_um_hsc_tdc tdc_inst (
