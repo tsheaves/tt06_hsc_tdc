@@ -135,7 +135,6 @@ class TDCCtrl:
                                 case("SAT_RISE", 64):
                                     assert self.dut.hw.value == 64
                             sample_count-=1
-                            print("Here")
                     await RisingEdge(self.dut.clk_launch)
         
         await RisingEdge(self.dut.clk_launch)

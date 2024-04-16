@@ -111,9 +111,9 @@ else
         # RTL simulation:
         SIM_BUILD		     = sim_build/rtl
         COMPILE_ARGS 		+= -I$(SRC_DIR)
-        COMPILE_ARGS        += -DFUNCTIONAL
         COMPILE_ARGS        += -DSIM
         COMPILE_ARGS        += -DWAVES
+        COMPILE_ARGS        += -DFUNCTIONAL
         COMPILE_ARGS        += -DUNIT_DELAY=\#1
         VERILOG_SOURCES     += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
         # We need to include these for the std cell macro models
@@ -128,6 +128,7 @@ else
         COMPILE_ARGS     += -DUSE_POWER_PINS
         COMPILE_ARGS     += -DSIM
         COMPILE_ARGS     += -DWAVES
+        COMPILE_ARGS     += -DFUNCTIONAL
         COMPILE_ARGS     += -DUNIT_DELAY=\#1
         VERILOG_SOURCES  += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
         VERILOG_SOURCES  += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
