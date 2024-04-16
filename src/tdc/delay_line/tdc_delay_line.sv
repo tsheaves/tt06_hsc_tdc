@@ -19,14 +19,9 @@ module delay_line #(
     generate
 	    case(DL_TYPE)
 		    "RCA": begin : dl_genblk
-                (* keep *) logic 
-                    keep_co;
-			    rca #(.WIDTH(N)) dl (
-				    .a({N{1'b1}}),
-				    .b({N{1'b0}}),
-				    .ci(in),
-				    .s(dl_out),
-				    .co(keep_co)
+			    rca_dl #(.WIDTH(N)) dl (
+				    .pulse(in),
+                    .meas(dl_out)
 			    );
             end
 	    endcase

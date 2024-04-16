@@ -16,7 +16,7 @@ set ::env(PL_TARGET_DENSITY) 0.6
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 15.1515ns ~= 66MHz.
-set ::env(CLOCK_PERIOD) "58"
+set ::env(CLOCK_PERIOD) "52"
 
 # Hold slack margin - Increase them in case you are getting hold violations.
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.1
@@ -30,6 +30,9 @@ set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 set ::env(EXTRA_LEFS) [glob $::env(DESIGN_DIR)/dummy_macro/lef/dummy.lef]
 set ::env(MACRO_PLACEMENT_CFG) [glob $::env(DESIGN_DIR)/place/macro_placement.cfg]
 set ::env(SYNTH_POWER_DEFINE) "USE_POWER_PINS"
+
+# Don't let OpenLane modify the delay line - willing to sacrafice performance for linnearity
+# source [glob $::env(DESIGN_DIR)/place/resizer_dont_touch.tcl]
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 

@@ -40,7 +40,7 @@ logic [N_o:0]
 logic
     val_out;
 
-generate begin
+generate
     if(N_o+1 == 7) begin
         always@(*) begin
             uo_out[N_o:0] = hw;
@@ -53,7 +53,7 @@ generate begin
             uo_out[7] = val_out;
         end
     end
-end
+endgenerate
 
 // Pin mapping
 always@(*) begin

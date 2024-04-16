@@ -24,7 +24,7 @@ module tdc_top #(
         val_out
 );
 
-logic 
+(* keep *) logic
     pg_out;
 
 logic [N-1:0]
@@ -35,8 +35,8 @@ logic [N-1:0]
 logic [N-1:0]
     capt_reg_r [N_SYNC:0];
 
-logic [N-1:0]
-    val_out_sync_r;
+logic [0:0] 
+    val_out_sync_r [N_SYNC:0];
 
 logic
     val_out_pg,
@@ -76,10 +76,10 @@ capture_reg #(
     .CLK(clk_capture)
 );
 
-always@(posedge clk) begin
+always_ff@(posedge clk_capture) begin
     if(rst) begin
         val_out_capt <= 1'b0;
-    end else if(en)
+    end else if(en) begin
         val_out_capt <= val_out_pg;
     end
 end
@@ -100,14 +100,14 @@ always_comb sync_out = capt_reg_r[N_SYNC];
 
 // Valid sync stages
 always_comb val_out_sync_r[0] = val_out_capt;
-genvar i;
+genvar j;
 generate
-    for(i=1; i<=N_SYNC; i=i+1) begin : genblk_capt
+    for(j=1; j<=N_SYNC; j=j+1) begin : genblk_val_out
         always_ff@(posedge clk_capture)
             if(rst)
-                val_out_sync_r[i] <= {N{1'b0}};
+                val_out_sync_r[j] <= {N{1'b0}};
             else if(en)
-                val_out_sync_r[i] <= val_out_sync_r[i-1];
+                val_out_sync_r[j] <= val_out_sync_r[j-1];
     end
 endgenerate
 always_comb val_out_sync = val_out_sync_r[N_SYNC];
