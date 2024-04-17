@@ -10,5 +10,5 @@ if __name__ == '__main__':
         "tb.clk_launch",
         "tb.clk_capt"   
     ]
-    process_vcd(path_list, "test.vcd", "test_wf.json")
+    process_vcd(path_list, "tb.vcd", "tb_wf.json")
 

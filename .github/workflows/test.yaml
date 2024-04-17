@@ -53,6 +53,10 @@ jobs:
           paths: "test/results.xml"
         if: always()           
 
+      - name: Generate JSON waveform
+        run: |
+          python3 test/tdc_vcd_to_json.py
+
       - name: upload vcd
         if: success() || failure()
         uses: actions/upload-artifact@v4
@@ -61,3 +65,11 @@ jobs:
           path: |
             test/tb.vcd
             test/result.xml
+
+      - name: upload json
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-json
+          path: |
+            test/tb_wf.json
