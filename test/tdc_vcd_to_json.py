@@ -2,7 +2,7 @@
 from vcd2json.vcd2json import WaveExtractor
 
 def process_vcd(path_list, vcd, json):
-    extractor = WaveExtractor('test.vcd', 'timer.json', path_list)
+    extractor = WaveExtractor(vcd, json, path_list)
     extractor.execute()
 
 if __name__ == '__main__':
