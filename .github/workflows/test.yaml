@@ -22,8 +22,8 @@ jobs:
         run: |
           pip install cocotb~=1.8.0
           cocotb-config --libpython
-          cocotb-config --python-bin
-          
+          cocotb-config --python-bin 
+
       - name: Set up environment variables
         shell: bash
         run: |
@@ -51,7 +51,7 @@ jobs:
         uses: test-summary/action@v2.2
         with:
           paths: "test/results.xml"
-        if: always()
+        if: always()           
 
       - name: upload vcd
         if: success() || failure()
