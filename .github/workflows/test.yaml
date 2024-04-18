@@ -14,7 +14,10 @@ jobs:
       #   run: sudo apt-get update && sudo apt-get install -y iverilog
       - name: Install the latest iverilog w/ SDF annotation interconnect support
         shell: bash
-        run: | 
+        run: |
+          cat << EOF >> $GITHUB_ENV
+          IVERILOG_ROOT=/home/runner/iverilog
+          EOF
           git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git $IVERILOG_ROOT
           sudo apt-get install -y autoconf gperf make gcc g++ bison flex
           cd $IVERILOG_ROOT
