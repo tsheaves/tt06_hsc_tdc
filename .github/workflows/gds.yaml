@@ -34,7 +34,7 @@ jobs:
           submodules: recursive
 
       - name: GL test
-        uses: TinyTapeout/tt-gds-action/gl_test@tt06
+        uses: tsheaves/tt-gds-action/gl_test@tt06
 
   viewer:
     needs: gds

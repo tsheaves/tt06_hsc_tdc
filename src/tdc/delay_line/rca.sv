@@ -6,37 +6,37 @@ Description: Guaranteed to be an adder independent of inputs
      Author: Tyler Sheaves (@tsheaves)
 */
 `define FA_CELL sky130_fd_sc_hd__fa_2 
-// `timescale 1ns/1ps
+`timescale 1ns/1ps
 
-(* techmap_celltype = "$fa" *)
-module fa_fixed(A, B, C, X, Y);
-	parameter WIDTH = 1;
+// (* techmap_celltype = "$fa" *)
+// module fa_fixed(A, B, C, X, Y);
+// 	parameter WIDTH = 1;
 
-	(* force_downto *)
-	input [WIDTH-1:0] A, B, C;
-	(* force_downto *)
-	output [WIDTH-1:0] X, Y;
+// 	(* force_downto *)
+// 	input [WIDTH-1:0] A, B, C;
+// 	(* force_downto *)
+// 	output [WIDTH-1:0] X, Y;
 
-	(* force_downto *)
-	wire [WIDTH-1:0] t1, t2, t3;
+// 	(* force_downto *)
+// 	wire [WIDTH-1:0] t1, t2, t3;
 
-    wire _TECHMAP_FAIL_ = WIDTH > 1;
+//     wire _TECHMAP_FAIL_ = WIDTH > 1;
 
-    `FA_CELL FA ( 
-        .COUT(X), 
-        .CIN(C), 
-        .A(A), 
-        .B(B), 
-        .SUM(Y)
-        `ifdef USE_POWER_PINS
-            , .VGND(VGND)
-            , .VPWR(VPWR)
-            , .VPB(VPWR)
-            , .VNB(VGND)
-        `endif  // USE_POWER_PINS 
-    );
+//     `FA_CELL FA ( 
+//         .COUT(X), 
+//         .CIN(C), 
+//         .A(A), 
+//         .B(B), 
+//         .SUM(Y)
+//         `ifdef USE_POWER_PINS
+//             , .VGND(VGND)
+//             , .VPWR(VPWR)
+//             , .VPB(VPWR)
+//             , .VNB(VGND)
+//         `endif  // USE_POWER_PINS 
+//     );
 
-endmodule
+// endmodule
 
 module const_ones #(parameter N=64) (
     output [N-1:0] ones
@@ -112,12 +112,18 @@ module rca_dl #(parameter WIDTH=32) (
 		genvar i;
 		for(i=0; i<WIDTH; i=i+1) begin : rca_genblk
             (* keep *)
-			fa_fixed FA( 
-                .X(c[i+1]), 
-                .C(c[i]), 
+            `FA_CELL FA ( 
+                .COUT(c[i+1]), 
+                .CIN(c[i]), 
                 .A(a_int[i]), 
                 .B(b_int[i]), 
-                .Y(meas[i]) 
+                .SUM(meas[i])
+`ifdef USE_POWER_PINS
+                , .VGND(VGND)
+                , .VPWR(VPWR)
+                , .VPB(VPWR)
+                , .VNB(VGND)
+`endif  // USE_POWER_PINS 
             );
         end
    	endgenerate
