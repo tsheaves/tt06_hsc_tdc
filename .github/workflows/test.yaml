@@ -17,6 +17,7 @@ jobs:
         run: |
           cat << EOF >> $GITHUB_ENV
           IVERILOG_ROOT=/home/runner/iverilog
+          IVERILOG_TAG=master
           EOF
           git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git $IVERILOG_ROOT
           sudo apt-get install -y autoconf gperf make gcc g++ bison flex
