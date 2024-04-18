@@ -20,8 +20,7 @@ jobs:
           EOF
           git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git $IVERILOG_ROOT
           sudo apt-get install -y autoconf gperf make gcc g++ bison flex
-          cd $IVERILOG_ROOT
-          make install --prefix=$IVERILOG_ROOT
+          make -C $IVERILOG_ROOT install --prefix=$IVERILOG_ROOT
           export PATH=$IVERILOG_ROOT/bin:$PATH
 
       # Set Python up and install cocotb
