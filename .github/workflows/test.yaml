@@ -12,20 +12,22 @@ jobs:
       # - name: Install iverilog
       #   shell: bash
       #   run: sudo apt-get update && sudo apt-get install -y iverilog
-      - name: Install the latest iverilog w/ SDF annotation interconnect support
-        shell: bash
-        run: |
-          cat << EOF >> $GITHUB_ENV
-          IVERILOG_ROOT=/home/runner/iverilog
-          IVERILOG_TAG=master
-          EOF
-          mkdir -p $IVERILOG_ROOT
-          cd $IVERILOG_ROOT
-          git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git .
-          sudo apt-get install -y autoconf gperf make gcc g++ bison flex
-          make --prefix=$IVERILOG_ROOT
-          make install
-          export PATH=$IVERILOG_ROOT/bin:$PATH 
+      # - name: Install the latest iverilog w/ SDF annotation interconnect support
+      #   shell: bash
+      #   run: |
+      #     cat << EOF >> $GITHUB_ENV
+      #     IVERILOG_ROOT=/home/runner/iverilog
+      #     IVERILOG_TAG=master
+      #     EOF
+      #     mkdir -p $IVERILOG_ROOT
+      #     cd $IVERILOG_ROOT
+      #     git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git .
+      #     sudo apt-get install -y autoconf gperf make gcc g++ bison flex
+      #     sh autoconf.sh
+      #     ./configure --prefix=$IVERILOG_ROOT
+      #     make 
+      #     make install
+      #     export PATH=$IVERILOG_ROOT/bin:$PATH 
 
       # Set Python up and install cocotb
       - name: Setup python
@@ -39,6 +41,12 @@ jobs:
           pip install cocotb~=1.8.0
           cocotb-config --libpython
           cocotb-config --python-bin 
+
+      # - name: Install some extra packages
+      #   shell: bash
+      #   run: |
+      #     pip install pandas
+      #     pip install seaborn
 
       - name: Set up environment variables
         shell: bash
@@ -67,11 +75,7 @@ jobs:
         uses: test-summary/action@v2.2
         with:
           paths: "test/results.xml"
-        if: always()           
-
-      - name: Generate JSON waveform
-        run: |
-          python3 test/tdc_vcd_to_json.py
+        if: always()
 
       - name: upload vcd
         if: success() || failure()
@@ -82,10 +86,3 @@ jobs:
             test/tb.vcd
             test/result.xml
 
-      - name: upload json
-        if: success() || failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-json
-          path: |
-            test/tb_wf.json
