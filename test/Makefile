@@ -37,8 +37,6 @@ PROJECT_SOURCES = \
             VERILOG_SOURCES     += $(FIXED_PDK_DIR)/sky130_ef_sc_hd__decap_12.v
             VERILOG_SOURCES     += $(FIXED_PDK_DIR)/sky130_fd_sc_hd.v
 
-            MODULE = test_rtl
-
         else
 
             # Gate level simulation:
@@ -58,8 +56,6 @@ PROJECT_SOURCES = \
             VERILOG_SOURCES  += $(FIXED_PDK_DIR)/primitives_hd.v
             VERILOG_SOURCES  += $(FIXED_PDK_DIR)/sky130_ef_sc_hd__decap_12.v
             VERILOG_SOURCES  += $(FIXED_PDK_DIR)/sky130_fd_sc_hd.v
-
-            MODULE = test_sdf_gl
 
         endif
 
@@ -82,8 +78,6 @@ PROJECT_SOURCES = \
             VERILOG_SOURCES   += $(FIXED_PDK_DIR)/primitives.v
             VERILOG_SOURCES   += $(FIXED_PDK_DIR)/sky130_fd_sc_hd.v
 
-            MODULE = test_rtl
-
         else
 
             SIM_BUILD		   = sim_build/gl
@@ -103,8 +97,6 @@ PROJECT_SOURCES = \
             COMPILE_ARGS      += -v $(FIXED_PDK_DIR)/primitives.v
             SIM_ARGS          += -vcd waves.vcd -ucli -i $(PWD)/cdc_registers.tchk
             VERILOG_SOURCES   += $(GLN)
-
-            
 
         endif
 

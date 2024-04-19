@@ -23,4 +23,12 @@ test/rename_gl
 test/*.tchk
 text/*.xml
 test/vcs
+test/sdf_renamed_out
+test/skywater_stdcell_fixed
+test/post_process
+test/gln_renamed_out
+test/tdc_vcd_to_json.py
+test/test_git.py
+test/test_local.py
+test/test_rtl.py
 tt/
