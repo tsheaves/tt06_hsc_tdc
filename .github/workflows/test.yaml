@@ -46,11 +46,11 @@ jobs:
           cocotb-config --libpython
           cocotb-config --python-bin 
 
-      # - name: Install some extra packages
-      #   shell: bash
-      #   run: |
-      #     pip install pandas
-      #     pip install seaborn
+      - name: Install some extra packages
+        shell: bash
+        run: |
+          pip install pandas
+          pip install seaborn
 
       - name: Set up environment variables
         shell: bash
