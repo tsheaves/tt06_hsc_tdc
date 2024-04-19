@@ -73,7 +73,7 @@ jobs:
           cd test
           mkdir pdk_cleaned
           git clone --filter=blob:none --no-checkout https://github.com/efabless/caravel_mgmt_soc_litex.git pdk_cleaned
-          cd test/pdk_cleaned
+          cd pdk_cleaned
           git sparse-checkout set verilog/cvc-pdk
           git checkout
 
