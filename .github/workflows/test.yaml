@@ -13,26 +13,6 @@ jobs:
         shell: bash
         run: sudo apt-get update && sudo apt-get install -y iverilog
 
-      # - name: Install iverilog
-      #   shell: bash
-      #   run: sudo apt-get update && sudo apt-get install -y iverilog
-      # - name: Install the latest iverilog w/ SDF annotation interconnect support
-      #   shell: bash
-      #   run: |
-      #     cat << EOF >> $GITHUB_ENV
-      #     IVERILOG_ROOT=/home/runner/iverilog
-      #     IVERILOG_TAG=master
-      #     EOF
-      #     mkdir -p $IVERILOG_ROOT
-      #     cd $IVERILOG_ROOT
-      #     git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git .
-      #     sudo apt-get install -y autoconf gperf make gcc g++ bison flex
-      #     sh autoconf.sh
-      #     ./configure --prefix=$IVERILOG_ROOT
-      #     make 
-      #     make install
-      #     export PATH=$IVERILOG_ROOT/bin:$PATH 
-
       # Set Python up and install cocotb
       - name: Setup python
         uses: actions/setup-python@v5
@@ -59,15 +39,8 @@ jobs:
           PDK_ROOT=/home/runner/pdk
           PDK=sky130A
           EOF
-  
-      # - name: Install Sky130 PDK
-      #   uses: TinyTapeout/volare-action@v2
-      #   with:
-      #     pdk_name: sky130
-      #     pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
-      #     pdk_root: /home/runner/pdk
 
-      - name: Install fixed TT Sim files
+      - name: Install fixed simulation files
         shell: bash
         run: |
           cd test
@@ -77,7 +50,7 @@ jobs:
           git sparse-checkout set verilog/cvc-pdk
           git checkout
 
-      - name: Run tests
+      - name: Run tests - assertions check toggling and static output
         run: |
           cd test
           make clean

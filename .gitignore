@@ -4,6 +4,7 @@
 .hdl_checker
 *.vcd
 *.vpd
+*.nfs*
 *.png
 *.svg
 *.sh
