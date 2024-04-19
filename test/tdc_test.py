@@ -10,7 +10,11 @@ from tdc_test_utility import TDCTestUtility
 async def test_tdc(dut):
     dut._log.info("Start")
     gates = os.environ['GATES']
+    
+    # May need to set this lower for faster delay line cells
+    theta_step_ps = 100
 
+    # Remember to set the clock rate
     tdc_ctrl = TDCTestUtility(
         clk_period_ns=54, 
         dut=dut, 
@@ -33,7 +37,7 @@ async def test_tdc(dut):
 
     if gates == "yes":
         dut._log.info("Collecting samples with 100ps theta increments from 0 to 2*f_clk.")
-        for theta_ps in range(0, 2*tdc_ctrl.clk_period_ns*1000+1, 100):
+        for theta_ps in range(0, 2*tdc_ctrl.clk_period_ns*1000+1, theta_step_ps):
             set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
             await set_theta_thread
             get_samples_thread = cocotb.start_soon(tdc_ctrl.get_pulse_response_gl())
@@ -44,7 +48,7 @@ async def test_tdc(dut):
 
     else:
         dut._log.info("Capturing some samples.")
-        for theta_ps in range(1, 1001, 10):
+        for theta_ps in range(1, 1001, theta_step_ps):
             set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
             await set_theta_thread
             get_samples_thread = cocotb.start_soon(tdc_ctrl.check_pulse_response_rtl())
@@ -56,7 +60,7 @@ async def test_tdc(dut):
 
     if gates == "yes":
         dut._log.info("Collecting samples with 100ps theta increments from 0 to 2*f_clk.")
-        for theta_ps in range(0, 2*tdc_ctrl.clk_period_ns*1000+1, 100):
+        for theta_ps in range(0, 2*tdc_ctrl.clk_period_ns*1000+1, theta_step_ps):
             set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
             await set_theta_thread
             get_samples_thread = cocotb.start_soon(tdc_ctrl.get_pulse_response_gl())
@@ -67,7 +71,7 @@ async def test_tdc(dut):
 
     else:
         dut._log.info("Capturing some samples.")
-        for theta_ps in range(1, 1001, 10):
+        for theta_ps in range(1, 1001, theta_step_ps):
             set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
             await set_theta_thread
             get_samples_thread = cocotb.start_soon(tdc_ctrl.check_pulse_response_rtl())
