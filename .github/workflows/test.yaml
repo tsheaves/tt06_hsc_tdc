@@ -60,12 +60,22 @@ jobs:
           PDK=sky130A
           EOF
   
-      - name: Install Sky130 PDK
-        uses: TinyTapeout/volare-action@v2
-        with:
-          pdk_name: sky130
-          pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
-          pdk_root: /home/runner/pdk
+      # - name: Install Sky130 PDK
+      #   uses: TinyTapeout/volare-action@v2
+      #   with:
+      #     pdk_name: sky130
+      #     pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
+      #     pdk_root: /home/runner/pdk
+
+      - name: Install fixed TT Sim files
+        shell: bash
+        run: |
+          cd test
+          mkdir pdk_cleaned
+          git clone --filter=blob:none --no-checkout https://github.com/efabless/caravel_mgmt_soc_litex.git pdk_cleaned
+          cd test/pdk_cleaned
+          git sparse-checkout set verilog/cvc-pdk
+          git checkout
 
       - name: Run tests
         run: |
