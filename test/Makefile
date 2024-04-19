@@ -4,8 +4,8 @@ CORNER        ?= nom
 OC            ?= Slowest
 SDF_TIMING    ?= typ
 FIXED_PDK_DIR ?= $(HOME)/pdk_sim_files/verilog/cvc-pdk
-SDF_RENAMED   ?= "$(PWD)/sdf_renamed_out/multicorner/$(CORNER)/tt_um_hsc_tdc.$(OC).sdf"
-GLN_RENAMED   ?= $(PWD)/gln_renamed_out/tt_um_hsc_tdc.v
+SDF_RENAMED   ?= "./sdf_renamed_out/multicorner/$(CORNER)/tt_um_hsc_tdc.$(OC).sdf"
+GLN_RENAMED   ?= ./gln_renamed_out/tt_um_hsc_tdc.v
 SIM           ?= icarus
 GATES         ?= no
 
@@ -33,7 +33,7 @@ PROJECT_SOURCES = \
             COMPILE_ARGS        += -DUNIT_DELAY=\#1
             VERILOG_SOURCES     += $(addprefix $(SRC_DIR),$(PROJECT_SOURCES))
             # We need to include these for the std cell macro models
-            VERILOG_SOURCES     += $(FIXED_PDK_DIR)/primitives_hd.v 
+            VERILOG_SOURCES     += $(FIXED_PDK_DIR)/primitives_hd.v
             VERILOG_SOURCES     += $(FIXED_PDK_DIR)/sky130_ef_sc_hd__decap_12.v
             VERILOG_SOURCES     += $(FIXED_PDK_DIR)/sky130_fd_sc_hd.v
 
@@ -55,7 +55,7 @@ PROJECT_SOURCES = \
             COMPILE_ARGS     += -g2012
             COMPILE_ARGS     += -T$(SDF_TIMING)
             VERILOG_SOURCES  += $(GLN_RENAMED)
-            VERILOG_SOURCES  += $(FIXED_PDK_DIR)/primitives_hd.v 
+            VERILOG_SOURCES  += $(FIXED_PDK_DIR)/primitives_hd.v
             VERILOG_SOURCES  += $(FIXED_PDK_DIR)/sky130_ef_sc_hd__decap_12.v
             VERILOG_SOURCES  += $(FIXED_PDK_DIR)/sky130_fd_sc_hd.v
 
