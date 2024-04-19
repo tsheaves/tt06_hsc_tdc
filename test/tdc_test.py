@@ -39,7 +39,8 @@ async def test_tdc(dut):
             get_samples_thread = cocotb.start_soon(tdc_ctrl.get_pulse_response_gl())
             await get_samples_thread
         # Make the plot
-        tdc_ctrl.plot_theta_sweep("theta_sweep.png")
+        tdc_ctrl.plot_theta_sweep("theta_sweep_bypass.png")
+        tdc_ctrl.clear_meas()
 
     else:
         dut._log.info("Capturing some samples.")
@@ -48,3 +49,46 @@ async def test_tdc(dut):
             await set_theta_thread
             get_samples_thread = cocotb.start_soon(tdc_ctrl.check_pulse_response_rtl())
             await get_samples_thread
+
+    dut._log.info("Configuring the pulsegenerator to toggle w/o register bypass.")    
+    pg_cfg_thread = cocotb.start_soon(tdc_ctrl.pg_cfg("PG_TOG", "PG_REG"))
+    await pg_cfg_thread
+
+    if gates == "yes":
+        dut._log.info("Collecting samples with 100ps theta increments from 0 to 2*f_clk.")
+        for theta_ps in range(0, 2*tdc_ctrl.clk_period_ns*1000+1, 100):
+            set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
+            await set_theta_thread
+            get_samples_thread = cocotb.start_soon(tdc_ctrl.get_pulse_response_gl())
+            await get_samples_thread
+        # Make the plot
+        tdc_ctrl.plot_theta_sweep("theta_sweep_no_bypass.png")
+        tdc_ctrl.clear_meas()
+
+    else:
+        dut._log.info("Capturing some samples.")
+        for theta_ps in range(1, 1001, 10):
+            set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(theta_ps))
+            await set_theta_thread
+            get_samples_thread = cocotb.start_soon(tdc_ctrl.check_pulse_response_rtl())
+            await get_samples_thread
+
+    # No phase shifting
+    set_theta_thread = cocotb.start_soon(tdc_ctrl.set_theta_ps(0))
+    await set_theta_thread
+
+    dut._log.info("Configuring the pulsegenerator to pass PG_IN w/ register bypass.")    
+    pg_cfg_thread = cocotb.start_soon(tdc_ctrl.pg_cfg("PG_IN", "PG_BYPASS"))
+    await pg_cfg_thread
+
+    # Test random inputs to PG_IN
+    for i in range(1000):
+        set_theta_thread = cocotb.start_soon(tdc_ctrl.random_pg_in_test())
+
+    dut._log.info("Configuring the pulsegenerator to pass PG_IN w/o register bypass.")    
+    pg_cfg_thread = cocotb.start_soon(tdc_ctrl.pg_cfg("PG_IN", "PG_REG"))
+    await pg_cfg_thread
+
+    # Test random inputs to PG_IN
+    for i in range(1000):
+        set_theta_thread = cocotb.start_soon(tdc_ctrl.random_pg_in_test())

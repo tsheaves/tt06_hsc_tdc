@@ -1,4 +1,5 @@
 import cocotb
+import random
 import cocotb.utils as utils
 import pandas as pd
 import seaborn as sns
@@ -21,6 +22,7 @@ class TDCTestUtility:
         self.dl_cell=dl_cell
         self.meas_start = meas_start
         self.clk_period_ns=clk_period_ns
+        self.is_inverted=is_inverted
         self.f_clk_mhz=(1/self.clk_period_ns)*1000
         self.dut=dut
         self.clock_launch_coru=None
@@ -32,8 +34,8 @@ class TDCTestUtility:
             "PG_TOG" : 1 
         }
         self.reg_bypass = {
-            "BYPASS" : 1,
-            "REG"    : 0
+            "REG"    : 0,
+            "BYPASS" : 1
         }
 
         if(is_inverted):
@@ -76,17 +78,14 @@ class TDCTestUtility:
             title=f'Theta Sweep for Cell {self.dl_cell} @ {self.f_clk_mhz:4.2f}MHz'
         )
         plt.savefig(fname=fh, dpi=dpi)
+        plt.close()
 
     def clear_meas(self):
-        meas_dict = {
-            "SIM_TIME_PS"  : [],
+        self.meas_dict = {
             "THETA_PS"     : [],
             "PULSE_PHASE"  : [],
             "HW_OUT"       : [],
-            "HW_OUT_INV"   : [],
-            "PG_BYPASS"    : [],
-            "PG_SRC"       : [],
-            "F_CLK_MHZ"    : []
+            "SIM_TIME_PS"  : []
         }
 
     @cocotb.coroutine
@@ -111,12 +110,21 @@ class TDCTestUtility:
                 yield cocotb.start_soon(self.__pg_tog_reg__())
     
     @cocotb.coroutine
-    def get_sample(self):
-        yield cocotb.start_soon(self.__get_sample__()) 
+    def get_pulse_response_gl(self):
+        yield cocotb.start_soon(self.__get_pulse_response_gl__())
+
+    @cocotb.coroutine
+    def check_pulse_response_rtl(self):
+        yield cocotb.start_soon(self.__check_pulse_response_rtl__()) 
     
     @cocotb.coroutine
     def start_clocks(self):
         yield cocotb.start_soon(self.__restart_clks__())
+
+    @cocotb.coroutine
+    def random_pg_in_test(self):
+        rand_pg_in = int(random.getrandbits(1))
+        yield cocotb.start_soon(self.__pass_pg_in__(rand_pg_in))
 
     async def __start_clks__(self):    
         # Start launch clk
@@ -181,16 +189,12 @@ class TDCTestUtility:
         self.dut.val_in.value = 1
         await ClockCycles(self.dut.clk_launch, n)
         self.dut.val_in.value = 0
-
-    async def __stress_delay_line__(self, stress_val):
-        assert self.dut.pg_src.value != self.src_ctrl["PG_TOG"]
-        enable_init = self.dut.ena.value
-        self.dut.ena.value = 1
         
-    async def get_pulse_response_gl(self):
+    async def __get_pulse_response_gl__(self):
         '''
         If the pg is toggling and the clocks are active, samples can be collected
         '''
+        await RisingEdge(self.dut.clk_launch)
         assert self.dut.pg_src.value == self.src_ctrl["PG_TOG"]
         assert self.clock_launch_coru != None and self.clock_capt_coru != None
         enable_init = self.dut.ena.value
@@ -228,10 +232,11 @@ class TDCTestUtility:
             self.theta_ps
         )
 
-    async def check_pulse_response_rtl(self):
+    async def __check_pulse_response_rtl__(self):
         '''
         If the pg is toggling and the clocks are active, samples can be collected
         '''
+        await RisingEdge(self.dut.clk_launch)
         assert self.dut.pg_src.value == self.src_ctrl["PG_TOG"]
         assert self.clock_launch_coru != None and self.clock_capt_coru != None
         enable_init = self.dut.ena.value
@@ -252,6 +257,29 @@ class TDCTestUtility:
                 case("SAT_RISE"):
                     assert self.dut.hw.value == 64
 
-        self.dut.val_in.value = 0
+        await RisingEdge(self.dut.clk_launch)
+        self.dut.ena.value = enable_init
+        await RisingEdge(self.dut.clk_launch)
+
+    
+    async def __pass_pg_in__(self, rand_pg_in):
+        enable_init = self.dut.ena.value
+        self.dut.ena.value = 1
+        val_count = 0
+        await RisingEdge(self.dut.clk_launch)
+        assert self.dut.pg_src.value == self.src_ctrl["PG_IN"]
+        assert self.clock_launch_coru != None and self.clock_capt_coru != None
+        cocotb.start_soon(self.__drive_valid__(8))
+        await RisingEdge(self.dut.val_out)
+        await RisingEdge(self.dut.clk_capture)
+        while(int(self.dut.val_out) == 1):
+            val_count += 1
+            if(rand_pg_in == self.is_inverted):
+                assert self.dut.hw.value == 0
+            else:
+                assert self.dut.hw.value == 64
+            await RisingEdge(self.dut.clk_capture)
+        assert val_count == 8
+        await RisingEdge(self.dut.clk_launch)
         self.dut.ena.value = enable_init
         await RisingEdge(self.dut.clk_launch)
